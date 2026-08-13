@@ -13,7 +13,8 @@ from app.models.enums import ContentStatus
 from app.models.experiment import Experiment
 from app.models.research import Research
 from app.repositories.blog import BlogRepository
-from app.repositories.content import ExperimentRepository, ResearchRepository
+from app.repositories.experiment import ExperimentRepository
+from app.repositories.research import ResearchRepository
 
 
 class BlogService:

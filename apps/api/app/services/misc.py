@@ -12,13 +12,11 @@ from app.models.profile import Profile
 from app.models.repository import Repository as RepositoryModel
 from app.models.resume import Resume
 from app.models.skill import SkillCategory
-from app.repositories.misc import (
-    ExperienceRepository,
-    ProfileRepository,
-    RepositoryRepository,
-    ResumeRepository,
-    SkillCategoryRepository,
-)
+from app.repositories.experience import ExperienceRepository
+from app.repositories.profile import ProfileRepository
+from app.repositories.repository import GitHubRepository
+from app.repositories.resume import ResumeRepository
+from app.repositories.skill import SkillCategoryRepository
 
 
 class ProfileService:
@@ -26,7 +24,7 @@ class ProfileService:
         self.repo = ProfileRepository(session)
 
     async def get(self) -> Profile:
-        profile = await self.repo.get_singleton()
+        profile = await self.repo.get()
         if profile is None:
             raise NotFoundError("Profile has not been configured")
         return profile
@@ -59,14 +57,10 @@ class SkillService:
 
 class RepositoryService:
     def __init__(self, session: AsyncSession) -> None:
-        self.repo = RepositoryRepository(session)
+        self.repo = GitHubRepository(session)
 
     async def list(self, *, featured: bool | None = None) -> list[RepositoryModel]:
-        filters = [RepositoryModel.featured.is_(featured)] if featured is not None else []
-        return await self.repo.list(
-            filters=filters,
-            order_by=(RepositoryModel.display_order, RepositoryModel.name),
-        )
+        return await self.repo.list_ordered(featured=featured)
 
 
 class ResumeService:

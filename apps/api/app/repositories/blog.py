@@ -2,27 +2,32 @@
 
 from __future__ import annotations
 
-import uuid
-
 from sqlalchemy import select
 
 from app.models.blog import BlogPost, BlogTag
-from app.repositories.base import BaseRepository
+from app.models.enums import ContentStatus
+from app.repositories.base import SlugRepository
+
+DEFAULT_BLOG_ORDER = (BlogPost.published_at.desc(), BlogPost.created_at.desc())
 
 
-class BlogRepository(BaseRepository[BlogPost]):
+class BlogRepository(SlugRepository[BlogPost]):
     model = BlogPost
 
-    async def get_by_slug(self, slug: str, *, include_deleted: bool = False) -> BlogPost | None:
-        stmt = self._base_select(include_deleted).where(BlogPost.slug == slug)
-        result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
+    async def get_published(self) -> list[BlogPost]:
+        return await self.list(
+            filters=[BlogPost.status == ContentStatus.PUBLISHED],
+            order_by=DEFAULT_BLOG_ORDER,
+        )
 
-    async def slug_exists(self, slug: str, *, exclude_id: uuid.UUID | None = None) -> bool:
-        stmt = select(BlogPost.id).where(BlogPost.slug == slug)
-        if exclude_id is not None:
-            stmt = stmt.where(BlogPost.id != exclude_id)
-        return (await self.session.execute(stmt)).first() is not None
+    async def get_featured(self, *, published_only: bool = True) -> list[BlogPost]:
+        filters = [BlogPost.featured.is_(True)]
+        if published_only:
+            filters.append(BlogPost.status == ContentStatus.PUBLISHED)
+        return await self.list(filters=filters, order_by=DEFAULT_BLOG_ORDER)
+
+    async def list_by_status(self, status: ContentStatus) -> list[BlogPost]:
+        return await self.list(filters=[BlogPost.status == status], order_by=DEFAULT_BLOG_ORDER)
 
     async def get_or_create_tags(self, names: list[str]) -> list[BlogTag]:
         tags: list[BlogTag] = []

@@ -102,7 +102,7 @@ class ProjectService:
         values = data.model_dump(exclude_unset=True, exclude={"skill_ids"})
 
         if "slug" in values and values["slug"]:
-            if await self.repo.slug_exists(values["slug"], exclude_id=project.id):
+            if await self.repo.exists_by_slug(values["slug"], exclude_id=project.id):
                 raise ConflictError(f"Slug '{values['slug']}' is already in use")
 
         # Manage publication date on status transitions.
@@ -143,12 +143,12 @@ class ProjectService:
         base = slugify(requested) if requested else slugify(title)
         if not base:
             raise ConflictError("Could not derive a slug from the title")
-        if requested and await self.repo.slug_exists(base):
+        if requested and await self.repo.exists_by_slug(base):
             raise ConflictError(f"Slug '{base}' is already in use")
         # Auto-generated slugs get a numeric suffix to stay unique.
         candidate = base
         suffix = 2
-        while await self.repo.slug_exists(candidate):
+        while await self.repo.exists_by_slug(candidate):
             candidate = f"{base}-{suffix}"
             suffix += 1
         return candidate

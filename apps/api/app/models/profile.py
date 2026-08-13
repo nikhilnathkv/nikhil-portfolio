@@ -2,7 +2,15 @@
 
 import uuid
 
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    ForeignKey,
+    String,
+    Text,
+    UniqueConstraint,
+    text,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -30,5 +38,16 @@ class Profile(UUIDPKMixin, TimestampMixin, Base):
         ForeignKey("resumes.id", ondelete="SET NULL"), nullable=True
     )
 
+    # Database-level singleton guard: the column is always ``true`` (CHECK) and
+    # unique, so a second profile row cannot be inserted accidentally.
+    is_singleton: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, server_default=text("true")
+    )
+
     profile_image: Mapped[Media | None] = relationship(Media, lazy="selectin")
     resume: Mapped[Resume | None] = relationship(Resume, lazy="selectin")
+
+    __table_args__ = (
+        UniqueConstraint("is_singleton", name="uq_profiles_singleton"),
+        CheckConstraint("is_singleton = true", name="ck_profiles_singleton"),
+    )
