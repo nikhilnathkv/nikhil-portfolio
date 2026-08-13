@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 from app.models.enums import ContentStatus
 from app.schemas.base import TimestampedResponse
+from app.schemas.common import Slug
 from app.schemas.media import MediaResponse
 
 
@@ -27,7 +28,7 @@ class BlogPostBase(BaseModel):
 
 
 class BlogPostCreate(BlogPostBase):
-    slug: str | None = Field(default=None, max_length=255)
+    slug: Slug | None = None
     status: ContentStatus = ContentStatus.DRAFT
     cover_image_id: uuid.UUID | None = None
     tags: list[str] = []
@@ -35,7 +36,7 @@ class BlogPostCreate(BlogPostBase):
 
 class BlogPostUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=255)
-    slug: str | None = Field(default=None, max_length=255)
+    slug: Slug | None = None
     excerpt: str | None = Field(default=None, max_length=500)
     content: str | None = Field(default=None, min_length=1)
     category: str | None = Field(default=None, max_length=100)

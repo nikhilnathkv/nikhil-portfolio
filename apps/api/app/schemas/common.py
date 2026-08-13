@@ -1,18 +1,68 @@
-"""Shared response schemas implementing the API response contract.
+"""Shared response schemas and reusable field types.
 
-Success:  {"data": {...}, "meta": {...}}
-Error:    {"error": {"code": "PROJECT_NOT_FOUND", "message": "Project not found"}}
+Response contract:
+    Success:  {"data": {...}, "meta": {...}}
+    Error:    {"error": {"code": "PROJECT_NOT_FOUND", "message": "Project not found"}}
 
-Mirrors the TypeScript definitions in packages/types/src/api.ts.
+Mirrors the TypeScript definitions in packages/types/src/api.ts. Also hosts the
+reusable validated field types (URL, slug) used across the domain schemas.
 """
 
-from pydantic import BaseModel
+from typing import Annotated
+
+from pydantic import (
+    AfterValidator,
+    BaseModel,
+    HttpUrl,
+    StringConstraints,
+    TypeAdapter,
+)
+
+# --- reusable field types --------------------------------------------------
+
+_http_url_adapter = TypeAdapter(HttpUrl)
+
+
+def _validate_http_url(value: str) -> str:
+    """Validate that a string is an http(s) URL, but keep it as a plain ``str``.
+
+    Storing/serializing as ``str`` avoids Pydantic ``Url`` objects leaking into
+    the ORM layer or JSON responses.
+    """
+    _http_url_adapter.validate_python(value)
+    return value
+
+
+#: A validated http(s) URL that is carried around as a plain string.
+HttpUrlStr = Annotated[str, AfterValidator(_validate_http_url)]
+
+#: A URL-safe slug: lowercase alphanumerics separated by single hyphens,
+#: e.g. ``aviation-intelligence-platform``.
+Slug = Annotated[
+    str,
+    StringConstraints(pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$", min_length=1, max_length=255),
+]
+
+
+# --- response envelope -----------------------------------------------------
 
 
 class Meta(BaseModel):
     total: int | None = None
     page: int | None = None
     page_size: int | None = None
+
+
+class Pagination(BaseModel):
+    """Pagination parameters / metadata for list endpoints."""
+
+    page: int = 1
+    page_size: int = 20
+    total: int | None = None
+
+    @property
+    def offset(self) -> int:
+        return (self.page - 1) * self.page_size
 
 
 class SuccessResponse[T](BaseModel):
