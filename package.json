@@ -1,0 +1,23 @@
+{
+  "name": "nikhil-portfolio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Nikhil's portfolio — modular monolith (Next.js + FastAPI) monorepo.",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=22 <23",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @nikhil-portfolio/web dev",
+    "build": "pnpm --filter @nikhil-portfolio/web build",
+    "lint": "pnpm -r --if-present lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2"
+  }
+}

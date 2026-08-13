@@ -1,0 +1,11 @@
+{
+  "name": "@nikhil-portfolio/config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared tooling configuration (tsconfig, prettier, eslint presets).",
+  "exports": {
+    "./prettier": "./prettier.config.mjs",
+    "./tsconfig.base.json": "../../tsconfig.base.json"
+  }
+}

@@ -1,0 +1,19 @@
+# Keep build contexts small and reproducible.
+**/node_modules
+**/.next
+**/out
+**/dist
+**/.turbo
+**/.venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.ruff_cache
+**/.mypy_cache
+.git
+.github
+**/.env
+**/.env.local
+coverage
+playwright-report
+test-results
