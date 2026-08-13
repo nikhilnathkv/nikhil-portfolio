@@ -2,9 +2,10 @@
 
 import uuid
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr, Field
 
 from app.schemas.base import TimestampedResponse
+from app.schemas.common import HttpUrlStr
 from app.schemas.media import MediaResponse
 
 
@@ -14,9 +15,9 @@ class ProfileBase(BaseModel):
     short_bio: str
     long_bio: str
     location: str | None = Field(default=None, max_length=255)
-    email: str | None = Field(default=None, max_length=255)
-    linkedin_url: str | None = Field(default=None, max_length=512)
-    github_url: str | None = Field(default=None, max_length=512)
+    email: EmailStr | None = None
+    linkedin_url: HttpUrlStr | None = Field(default=None, max_length=512)
+    github_url: HttpUrlStr | None = Field(default=None, max_length=512)
 
 
 class ProfileCreate(ProfileBase):
@@ -30,9 +31,9 @@ class ProfileUpdate(BaseModel):
     short_bio: str | None = None
     long_bio: str | None = None
     location: str | None = Field(default=None, max_length=255)
-    email: str | None = Field(default=None, max_length=255)
-    linkedin_url: str | None = Field(default=None, max_length=512)
-    github_url: str | None = Field(default=None, max_length=512)
+    email: EmailStr | None = None
+    linkedin_url: HttpUrlStr | None = Field(default=None, max_length=512)
+    github_url: HttpUrlStr | None = Field(default=None, max_length=512)
     profile_image_id: uuid.UUID | None = None
     resume_id: uuid.UUID | None = None
 

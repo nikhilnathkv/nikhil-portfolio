@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 from app.models.enums import ContentStatus
 from app.schemas.base import TimestampedResponse
+from app.schemas.common import HttpUrlStr, Slug
 from app.schemas.skill import SkillResponse
 
 
@@ -48,15 +49,16 @@ class ProjectBase(BaseModel):
     category: str | None = Field(default=None, max_length=100)
     featured: bool = False
     display_order: int = 0
-    github_url: str | None = Field(default=None, max_length=512)
-    live_url: str | None = Field(default=None, max_length=512)
+    github_url: HttpUrlStr | None = Field(default=None, max_length=512)
+    live_url: HttpUrlStr | None = Field(default=None, max_length=512)
     seo_title: str | None = Field(default=None, max_length=255)
     seo_description: str | None = Field(default=None, max_length=500)
 
 
 class ProjectCreate(ProjectBase):
-    # Optional; the service generates one from the title when omitted.
-    slug: str | None = Field(default=None, max_length=255)
+    # Optional; the service generates one from the title when omitted. When
+    # supplied it must already be a valid slug (generation lives in the service).
+    slug: Slug | None = None
     status: ContentStatus = ContentStatus.DRAFT
     skill_ids: list[uuid.UUID] = []
     metrics: list[ProjectMetricCreate] = []
@@ -64,7 +66,7 @@ class ProjectCreate(ProjectBase):
 
 class ProjectUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=255)
-    slug: str | None = Field(default=None, max_length=255)
+    slug: Slug | None = None
     short_description: str | None = Field(default=None, min_length=1, max_length=500)
     description: str | None = None
     problem: str | None = None
@@ -76,8 +78,8 @@ class ProjectUpdate(BaseModel):
     status: ContentStatus | None = None
     featured: bool | None = None
     display_order: int | None = None
-    github_url: str | None = Field(default=None, max_length=512)
-    live_url: str | None = Field(default=None, max_length=512)
+    github_url: HttpUrlStr | None = Field(default=None, max_length=512)
+    live_url: HttpUrlStr | None = Field(default=None, max_length=512)
     seo_title: str | None = Field(default=None, max_length=255)
     seo_description: str | None = Field(default=None, max_length=500)
     skill_ids: list[uuid.UUID] | None = None

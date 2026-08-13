@@ -47,3 +47,17 @@ class ExperienceResponse(TimestampedResponse):
     summary: str | None = None
     description: str | None = None
     display_order: int
+
+
+class ExperienceListResponse(TimestampedResponse):
+    """Lighter shape for list endpoints (omits the long description)."""
+
+    id: uuid.UUID
+    company: str
+    role: str
+    location: str | None = None
+    start_date: date
+    end_date: date | None = None
+    is_current: bool
+    summary: str | None = None
+    display_order: int

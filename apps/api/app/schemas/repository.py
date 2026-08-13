@@ -5,12 +5,13 @@ import uuid
 from pydantic import BaseModel, Field
 
 from app.schemas.base import TimestampedResponse
+from app.schemas.common import HttpUrlStr
 
 
 class RepositoryBase(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     description: str | None = None
-    url: str = Field(min_length=1, max_length=512)
+    url: HttpUrlStr = Field(max_length=512)
     language: str | None = Field(default=None, max_length=100)
     featured: bool = False
     display_order: int = 0
@@ -24,7 +25,7 @@ class RepositoryCreate(RepositoryBase):
 class RepositoryUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
     description: str | None = None
-    url: str | None = Field(default=None, min_length=1, max_length=512)
+    url: HttpUrlStr | None = Field(default=None, max_length=512)
     language: str | None = Field(default=None, max_length=100)
     featured: bool | None = None
     display_order: int | None = None

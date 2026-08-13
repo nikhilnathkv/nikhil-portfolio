@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 from app.models.enums import ContentStatus
 from app.schemas.base import TimestampedResponse
+from app.schemas.common import HttpUrlStr, Slug
 
 
 class ExperimentBase(BaseModel):
@@ -15,23 +16,23 @@ class ExperimentBase(BaseModel):
     results: str | None = None
     conclusion: str | None = None
     project_id: uuid.UUID | None = None
-    github_url: str | None = Field(default=None, max_length=512)
+    github_url: HttpUrlStr | None = Field(default=None, max_length=512)
 
 
 class ExperimentCreate(ExperimentBase):
-    slug: str | None = Field(default=None, max_length=255)
+    slug: Slug | None = None
     status: ContentStatus = ContentStatus.DRAFT
 
 
 class ExperimentUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=255)
-    slug: str | None = Field(default=None, max_length=255)
+    slug: Slug | None = None
     hypothesis: str | None = None
     method: str | None = None
     results: str | None = None
     conclusion: str | None = None
     project_id: uuid.UUID | None = None
-    github_url: str | None = Field(default=None, max_length=512)
+    github_url: HttpUrlStr | None = Field(default=None, max_length=512)
     status: ContentStatus | None = None
 
 
