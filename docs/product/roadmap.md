@@ -6,15 +6,25 @@ Monorepo, Next.js + FastAPI scaffolding, linting/formatting, Docker Compose
 (Postgres + storage), environment config, health endpoint, CI, and architecture
 documentation. First successful local build.
 
-## M2 — Data & content model ✅
+## M2 — Data model, API & auth ✅
 
-SQLAlchemy models for all 18 tables (UUID keys, timestamps, soft-delete where
-appropriate) + the initial Alembic migration (`upgrade`/`downgrade` verified);
-Pydantic Create/Update/Response schemas separate from the ORM; repository and
-service layers; public read endpoints (`profile`, `experience`, `projects`,
-`skills`, `blog`, `research`, `experiments`, `repositories`, `resume`) plus full
-Project CRUD; pytest suite (happy-path CRUD + failure cases) on a real Postgres
-test database.
+Delivered in sub-milestones on a real Postgres test database:
+
+- **M2.1/2.2** — SQLAlchemy models for all tables + Alembic migrations
+  (`0001`–`0003`, `upgrade`/`downgrade` verified).
+- **M2.3** — Pydantic Create/Update/Response schemas, separate from the ORM,
+  with URL/email/slug validation.
+- **M2.4** — Repository layer (per-domain, filtering/pagination/sorting;
+  transactions owned by services).
+- **M2.5** — Service layer (business rules, content lifecycle, domain errors).
+- **M2.6** — Public read API (versioned `/api/v1`, DI, pagination envelope,
+  strict draft visibility) + `POST /contact`.
+- **M2.7** — Session-based auth (Argon2id, hashed session tokens, HTTP-only
+  cookies, brute-force throttling) and the full admin API under `/admin/*`
+  (CRUD + publish/archive + dashboard), guarded by `require_admin`.
+
+Create the initial admin user with:
+`uv run python -m app.cli create-admin --email you@example.com --password '…'`
 
 ## M3 — Public site (next)
 

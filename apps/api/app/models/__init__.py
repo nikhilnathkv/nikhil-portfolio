@@ -15,6 +15,7 @@ from app.models.project import Project, ProjectMetric, project_skills
 from app.models.repository import Repository
 from app.models.research import Research
 from app.models.resume import Resume
+from app.models.session import Session
 from app.models.site_settings import SiteSetting
 from app.models.skill import Skill, SkillCategory
 from app.models.user import User
@@ -36,6 +37,7 @@ __all__ = [
     "Repository",
     "Research",
     "Resume",
+    "Session",
     "SiteSetting",
     "Skill",
     "SkillCategory",

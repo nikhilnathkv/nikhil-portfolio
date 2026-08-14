@@ -48,6 +48,25 @@ class ValidationError(AppError):
     code = "VALIDATION_ERROR"
 
 
+class AuthenticationError(AppError):
+    """Not authenticated / invalid credentials (generic — no account enumeration)."""
+
+    status_code = 401
+    code = "UNAUTHENTICATED"
+
+
+class PermissionDeniedError(AppError):
+    """Authenticated but not allowed."""
+
+    status_code = 403
+    code = "FORBIDDEN"
+
+
+class RateLimitedError(AppError):
+    status_code = 429
+    code = "RATE_LIMITED"
+
+
 # Backwards-compatible aliases (earlier milestones used these names).
 NotFoundError = ResourceNotFoundError
 ConflictError = DuplicateResourceError

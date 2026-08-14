@@ -8,6 +8,7 @@ test. The app's ``get_db`` dependency is overridden to use the test session.
 
 import os
 
+import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
@@ -15,8 +16,13 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
 import app.models  # noqa: F401  (register all tables on Base.metadata)
+from app.core.bootstrap import create_admin_user
 from app.core.database import Base, get_db
 from app.main import app
+from app.services.auth import login_throttle
+
+ADMIN_EMAIL = "admin@example.com"
+ADMIN_PASSWORD = "AdminPass123!"
 
 TEST_DATABASE_URL = os.environ.get(
     "TEST_DATABASE_URL",
@@ -92,3 +98,26 @@ async def client(db_session):
     from app.core.database import engine as app_engine
 
     await app_engine.dispose()
+
+
+@pytest.fixture(autouse=True)
+def _reset_login_throttle():
+    """Keep the in-memory brute-force throttle from leaking across tests."""
+    login_throttle.clear()
+    yield
+    login_throttle.clear()
+
+
+@pytest_asyncio.fixture
+async def admin_user(db_session):
+    return await create_admin_user(db_session, email=ADMIN_EMAIL, password=ADMIN_PASSWORD)
+
+
+@pytest_asyncio.fixture
+async def admin_client(client, admin_user):
+    """A client that has logged in as admin (session cookie in its jar)."""
+    resp = await client.post(
+        "/api/v1/auth/login", json={"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
+    )
+    assert resp.status_code == 200
+    return client

@@ -46,23 +46,23 @@ Routers are thin; services hold business logic; repositories own data access.
 - `GET /repositories` (filter: `?featured=`)
 - `GET /resume`
 
-### Project writes (implemented — M2; auth added in M4)
+- `POST /contact` — the only public write (returns an acknowledgement).
 
-- `POST /projects` · `PUT /projects/{id}` · `DELETE /projects/{id}` (soft-delete)
-- `POST /projects/{id}/publish` · `POST /projects/{id}/archive`
-
-### Planned
-
-- `POST /contact`
-
-### Auth (planned)
+### Auth (implemented — M2.7)
 
 - `POST /auth/login` · `POST /auth/logout` · `GET /auth/me`
-- Secure, HTTP-only session cookie.
+- **Session-based** (not JWT): Argon2id password hashing; a random session token
+  is set as a **Secure, HTTP-only** cookie and stored **hashed** in `sessions`.
+- Login is throttled per email; errors are generic (no account enumeration).
+- The first admin is created out-of-band:
+  `uv run python -m app.cli create-admin --email … --password …`.
 
-### Admin (planned)
+### Admin (implemented — M2.7, under `/api/v1/admin`, `require_admin`)
 
-- `POST|PUT|DELETE /admin/projects[/{id}]`
-- `POST|PUT|DELETE /admin/experience[/{id}]`
-- `POST|PUT|DELETE /admin/blog[/{id}]`
-- …one CRUD group per content entity, all behind auth.
+- Full CRUD (+ publish/archive where applicable) for projects, experience,
+  profile, skills, blog, research, experiments, repositories, resume, media,
+  messages, settings.
+- Admin sees all statuses (drafts included); the public API never does.
+- `GET /admin/dashboard` returns content/message counts for the admin UI.
+- Auth maps to HTTP centrally: `401` unauthenticated, `403` forbidden,
+  `409` conflict, `422` business-rule/validation, `429` rate-limited.

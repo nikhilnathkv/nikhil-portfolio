@@ -28,6 +28,19 @@ class ProfileService:
         await self.session.commit()
         return await self.get_profile()
 
+    async def upsert_profile(self, data: ProfileUpdate) -> Profile:
+        """Admin PUT: update the profile, creating it on first save."""
+        if await self.repo.get() is None:
+            values = data.model_dump(exclude_unset=True)
+            required = ("name", "headline", "short_bio", "long_bio")
+            missing = [f for f in required if not values.get(f)]
+            if missing:
+                raise BusinessRuleViolationError(
+                    "Profile does not exist yet; provide: " + ", ".join(required)
+                )
+            return await self.initialize_profile(ProfileCreate(**values))
+        return await self.update_profile(data)
+
     async def initialize_profile(self, data: ProfileCreate) -> Profile:
         """Create the single profile row. Not exposed via the public API — used
         by setup/seed. The database also guards against a second row."""
