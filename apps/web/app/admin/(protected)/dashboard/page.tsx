@@ -33,7 +33,12 @@ export default async function DashboardPage() {
             hint={`${summary.blog.published} published · ${summary.blog.drafts} drafts`}
           />
           <StatCard label="Research" value={summary.research} hint="published + drafts" />
-          <StatCard label="Unread messages" value={summary.unread_messages} hint="in your inbox" />
+          <StatCard
+            label="Unread messages"
+            value={summary.unread_messages}
+            hint="in your inbox"
+            href="/admin/messages?filter=unread"
+          />
         </div>
       ) : (
         <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">

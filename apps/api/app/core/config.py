@@ -46,6 +46,22 @@ class Settings(BaseSettings):
     login_max_attempts: int = Field(default=5)
     login_lockout_seconds: int = Field(default=300)
 
+    # Object storage (MinIO / S3-compatible) for media + resume uploads
+    minio_endpoint: str = Field(default="localhost:9000")
+    minio_access_key: str = Field(default="portfolio")
+    minio_secret_key: str = Field(default="portfolio123")
+    minio_bucket: str = Field(default="media")
+    minio_secure: bool = Field(default=False)
+    # Public base URL browsers use to load assets (a CDN in production).
+    minio_public_url: str = Field(default="http://localhost:9000")
+
+    # Upload limits
+    max_upload_mb: int = Field(default=10)
+
+    # Basic contact-form throttle (per IP)
+    contact_max_per_window: int = Field(default=5)
+    contact_window_seconds: int = Field(default=3600)
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]

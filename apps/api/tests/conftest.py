@@ -108,6 +108,30 @@ def _reset_login_throttle():
     login_throttle.clear()
 
 
+@pytest.fixture(autouse=True)
+def _reset_contact_throttle():
+    from app.services.contact import contact_throttle
+
+    contact_throttle.clear()
+    yield
+    contact_throttle.clear()
+
+
+@pytest.fixture(autouse=True)
+def _patch_storage(monkeypatch):
+    """Stub object storage so unit tests never touch MinIO."""
+    from app.services import storage as storage_mod
+
+    monkeypatch.setattr(storage_mod.StorageService, "ensure_bucket", lambda self: None)
+    monkeypatch.setattr(
+        storage_mod.StorageService,
+        "upload",
+        lambda self, data, key, content_type: f"http://test-storage/{key}",
+    )
+    monkeypatch.setattr(storage_mod.StorageService, "delete", lambda self, key: None)
+    yield
+
+
 @pytest_asyncio.fixture
 async def admin_user(db_session):
     return await create_admin_user(db_session, email=ADMIN_EMAIL, password=ADMIN_PASSWORD)

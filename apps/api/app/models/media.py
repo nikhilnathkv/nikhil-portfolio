@@ -17,3 +17,5 @@ class Media(UUIDPKMixin, TimestampMixin, Base):
     storage_key: Mapped[str] = mapped_column(String(512), unique=True, nullable=False)
     url: Mapped[str] = mapped_column(String(1024), nullable=False)
     alt_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    title: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)

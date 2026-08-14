@@ -4,6 +4,10 @@ Wires configuration, CORS, the standardized error envelope, and the versioned
 API router. Run with:  uvicorn app.main:app --reload
 """
 
+import logging
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,6 +18,22 @@ from app import __version__
 from app.api.router import api_router
 from app.core.config import settings
 from app.core.exceptions import AppError
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    # Ensure the object-storage bucket exists (best-effort: the app must still
+    # start when MinIO is unavailable, e.g. in unit tests).
+    try:
+        from app.services.storage import get_storage_service
+
+        get_storage_service().ensure_bucket()
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Object storage not ready at startup: %s", exc)
+    yield
+
 
 TAGS_METADATA = [
     {"name": "Profile", "description": "Public site-owner profile."},
@@ -41,6 +61,7 @@ def create_app() -> FastAPI:
         openapi_tags=TAGS_METADATA,
         docs_url="/docs",
         openapi_url="/openapi.json",
+        lifespan=lifespan,
     )
 
     app.add_middleware(

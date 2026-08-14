@@ -12,7 +12,7 @@ from app.schemas.base import ORMModel
 class ContactMessageCreate(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     email: EmailStr
-    message: str = Field(min_length=1)
+    message: str = Field(min_length=1, max_length=5000)
 
 
 class ContactMessageResponse(ORMModel):

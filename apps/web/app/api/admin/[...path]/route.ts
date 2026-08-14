@@ -22,10 +22,13 @@ async function proxy(request: Request, path: string[]): Promise<Response> {
   if (token) headers.set('cookie', `${SESSION_COOKIE}=${token}`);
 
   const method = request.method.toUpperCase();
-  let body: string | undefined;
+  let body: ArrayBuffer | undefined;
   if (method !== 'GET' && method !== 'DELETE') {
-    body = await request.text();
-    if (body) headers.set('content-type', 'application/json');
+    // Forward the raw body and preserve the caller's content-type — this makes
+    // both JSON and multipart/form-data (file uploads) pass through unchanged.
+    body = await request.arrayBuffer();
+    const contentType = request.headers.get('content-type');
+    if (contentType) headers.set('content-type', contentType);
   }
 
   const apiRes = await fetch(target, { method, headers, body, cache: 'no-store' });

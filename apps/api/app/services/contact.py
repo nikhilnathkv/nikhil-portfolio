@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+import time
 import uuid
+from collections import defaultdict
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.exceptions import (
     BusinessRuleViolationError,
     InvalidStateTransitionError,
+    RateLimitedError,
     ResourceNotFoundError,
 )
 from app.models.contact_message import ContactMessage
@@ -17,13 +21,39 @@ from app.repositories.contact import ContactMessageRepository
 from app.schemas.contact import ContactMessageCreate
 
 
+class _ContactThrottle:
+    """Basic in-memory per-IP submission throttle (hardened further in M3.6)."""
+
+    def __init__(self) -> None:
+        self._hits: dict[str, list[float]] = defaultdict(list)
+
+    def check(self, ip: str) -> None:
+        now = time.monotonic()
+        window = settings.contact_window_seconds
+        recent = [t for t in self._hits[ip] if now - t < window]
+        if len(recent) >= settings.contact_max_per_window:
+            raise RateLimitedError("Too many messages. Please try again later.")
+        recent.append(now)
+        self._hits[ip] = recent
+
+    def clear(self) -> None:
+        self._hits.clear()
+
+
+contact_throttle = _ContactThrottle()
+
+
 class ContactService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
         self.repo = ContactMessageRepository(session)
 
     # --- public -------------------------------------------------------------
-    async def submit_contact_message(self, data: ContactMessageCreate) -> ContactMessage:
+    async def submit_contact_message(
+        self, data: ContactMessageCreate, *, ip: str | None = None
+    ) -> ContactMessage:
+        if ip:
+            contact_throttle.check(ip)
         name = data.name.strip()
         message = data.message.strip()
         if not message:

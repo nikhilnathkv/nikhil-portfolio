@@ -2,7 +2,7 @@
 
 import uuid
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 
 from app.api.deps import get_resume_service
 from app.schemas.common import SuccessResponse, success
@@ -30,6 +30,31 @@ async def upload_resume(
     payload: ResumeCreate, service: ResumeService = Depends(get_resume_service)
 ) -> SuccessResponse[ResumeResponse]:
     return success(ResumeResponse.model_validate(await service.upload_resume(payload)))
+
+
+@router.post(
+    "/upload",
+    response_model=SuccessResponse[ResumeResponse],
+    status_code=status.HTTP_201_CREATED,
+    summary="Upload a resume PDF",
+)
+async def upload_resume_file(
+    file: UploadFile = File(...),
+    name: str = Form(...),
+    version: str = Form(...),
+    is_active: bool = Form(default=False),
+    service: ResumeService = Depends(get_resume_service),
+) -> SuccessResponse[ResumeResponse]:
+    data = await file.read()
+    resume = await service.upload_resume_file(
+        data=data,
+        original_filename=file.filename or "resume.pdf",
+        content_type=file.content_type or "application/octet-stream",
+        name=name,
+        version=version,
+        is_active=is_active,
+    )
+    return success(ResumeResponse.model_validate(resume))
 
 
 @router.post(

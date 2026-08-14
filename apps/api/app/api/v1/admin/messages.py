@@ -2,9 +2,10 @@
 
 import uuid
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 
 from app.api.deps import get_contact_service
+from app.models.enums import ContactStatus
 from app.schemas.common import SuccessResponse, success
 from app.schemas.contact import ContactMessageResponse
 from app.services.contact import ContactService
@@ -16,9 +17,10 @@ router = APIRouter(prefix="/messages", tags=["Admin: Messages"])
     "", response_model=SuccessResponse[list[ContactMessageResponse]], summary="List messages"
 )
 async def list_messages(
+    status_filter: ContactStatus | None = Query(default=None, alias="status"),
     service: ContactService = Depends(get_contact_service),
 ) -> SuccessResponse[list[ContactMessageResponse]]:
-    items = await service.list_messages()
+    items = await service.list_messages(status=status_filter)
     return success([ContactMessageResponse.model_validate(m) for m in items])
 
 

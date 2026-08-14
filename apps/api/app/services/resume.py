@@ -6,16 +6,19 @@ import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import ResourceNotFoundError
+from app.core.config import settings
+from app.core.exceptions import BusinessRuleViolationError, ResourceNotFoundError
 from app.models.resume import Resume
 from app.repositories.resume import ResumeRepository
 from app.schemas.resume import ResumeCreate
+from app.services.storage import StorageService, get_storage_service
 
 
 class ResumeService:
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(self, session: AsyncSession, storage: StorageService | None = None) -> None:
         self.session = session
         self.repo = ResumeRepository(session)
+        self.storage = storage or get_storage_service()
 
     async def get_active_resume(self) -> Resume:
         resume = await self.repo.get_active()
@@ -39,6 +42,34 @@ class ResumeService:
         self.session.add(resume)
         await self.session.flush()
         if make_active:
+            await self._activate(resume)
+        await self.session.commit()
+        return await self.get_resume(resume.id)
+
+    async def upload_resume_file(
+        self,
+        *,
+        data: bytes,
+        original_filename: str,
+        content_type: str,
+        name: str,
+        version: str,
+        is_active: bool = False,
+    ) -> Resume:
+        """Store a PDF resume in object storage and record it."""
+        if content_type != "application/pdf" and not original_filename.lower().endswith(".pdf"):
+            raise BusinessRuleViolationError("Resume must be a PDF file.")
+        max_bytes = settings.max_upload_mb * 1024 * 1024
+        if len(data) > max_bytes:
+            raise BusinessRuleViolationError(f"File exceeds the {settings.max_upload_mb} MB limit.")
+
+        key = self.storage.build_key(original_filename)
+        url = self.storage.upload(data, key, "application/pdf")
+
+        resume = Resume(name=name, file_url=url, version=version, is_active=False)
+        self.session.add(resume)
+        await self.session.flush()
+        if is_active:
             await self._activate(resume)
         await self.session.commit()
         return await self.get_resume(resume.id)
