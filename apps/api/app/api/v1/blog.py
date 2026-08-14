@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.schemas.blog import BlogPostListResponse, BlogPostResponse
 from app.schemas.common import SuccessResponse, success
-from app.services.content import BlogService
+from app.services.blog import BlogService
 
 router = APIRouter(prefix="/blog", tags=["blog"])
 

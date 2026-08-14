@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.schemas.common import SuccessResponse, success
 from app.schemas.skill import SkillCategoryResponse
-from app.services.misc import SkillService
+from app.services.skill import SkillService
 
 router = APIRouter(prefix="/skills", tags=["skills"])
 

@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.schemas.common import SuccessResponse, success
 from app.schemas.experience import ExperienceListResponse, ExperienceResponse
-from app.services.misc import ExperienceService
+from app.services.experience import ExperienceService
 
 router = APIRouter(prefix="/experience", tags=["experience"])
 
@@ -17,7 +17,7 @@ router = APIRouter(prefix="/experience", tags=["experience"])
 async def list_experience(
     db: AsyncSession = Depends(get_db),
 ) -> SuccessResponse[list[ExperienceListResponse]]:
-    items = await ExperienceService(db).list()
+    items = await ExperienceService(db).list_experience()
     return success([ExperienceListResponse.model_validate(i) for i in items])
 
 
@@ -25,5 +25,5 @@ async def list_experience(
 async def get_experience(
     experience_id: uuid.UUID, db: AsyncSession = Depends(get_db)
 ) -> SuccessResponse[ExperienceResponse]:
-    item = await ExperienceService(db).get(experience_id)
+    item = await ExperienceService(db).get_experience(experience_id)
     return success(ExperienceResponse.model_validate(item))

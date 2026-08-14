@@ -50,7 +50,7 @@ async def get_project(
 async def create_project(
     payload: ProjectCreate, db: AsyncSession = Depends(get_db)
 ) -> SuccessResponse[ProjectResponse]:
-    project = await ProjectService(db).create(payload)
+    project = await ProjectService(db).create_project(payload)
     return success(ProjectResponse.model_validate(project))
 
 
@@ -58,20 +58,20 @@ async def create_project(
 async def update_project(
     project_id: uuid.UUID, payload: ProjectUpdate, db: AsyncSession = Depends(get_db)
 ) -> SuccessResponse[ProjectResponse]:
-    project = await ProjectService(db).update(project_id, payload)
+    project = await ProjectService(db).update_project(project_id, payload)
     return success(ProjectResponse.model_validate(project))
 
 
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_project(project_id: uuid.UUID, db: AsyncSession = Depends(get_db)) -> None:
-    await ProjectService(db).delete(project_id)
+    await ProjectService(db).delete_project(project_id)
 
 
 @router.post("/{project_id}/publish", response_model=SuccessResponse[ProjectResponse])
 async def publish_project(
     project_id: uuid.UUID, db: AsyncSession = Depends(get_db)
 ) -> SuccessResponse[ProjectResponse]:
-    project = await ProjectService(db).publish(project_id)
+    project = await ProjectService(db).publish_project(project_id)
     return success(ProjectResponse.model_validate(project))
 
 
@@ -79,5 +79,5 @@ async def publish_project(
 async def archive_project(
     project_id: uuid.UUID, db: AsyncSession = Depends(get_db)
 ) -> SuccessResponse[ProjectResponse]:
-    project = await ProjectService(db).archive(project_id)
+    project = await ProjectService(db).archive_project(project_id)
     return success(ProjectResponse.model_validate(project))

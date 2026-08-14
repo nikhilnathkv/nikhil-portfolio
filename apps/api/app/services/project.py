@@ -1,9 +1,4 @@
-"""Project business logic.
-
-Owns everything that is a *rule* rather than raw data access: slug generation
-and uniqueness, publishing and publication dates, archiving, featured/ordering,
-and wiring up relationships (skills, metrics).
-"""
+"""Project business logic and transaction orchestration."""
 
 from __future__ import annotations
 
@@ -12,12 +7,21 @@ from datetime import UTC, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import ConflictError, NotFoundError
+from app.core.exceptions import DuplicateResourceError, ResourceNotFoundError
 from app.models.enums import ContentStatus
 from app.models.project import Project, ProjectMetric
-from app.repositories.project import ProjectRepository
+from app.repositories.pagination import Page, PageRequest
+from app.repositories.project import ProjectFilters, ProjectRepository
 from app.schemas.project import ProjectCreate, ProjectUpdate
-from app.utils.slug import slugify
+from app.services._helpers import (
+    mark_archived,
+    mark_published,
+    require_publishable,
+    resolve_slug,
+)
+
+# Fields that must be present before a project may be published.
+PUBLISH_REQUIRED_FIELDS = ["title", "slug", "short_description", "description", "category"]
 
 
 class ProjectService:
@@ -26,6 +30,18 @@ class ProjectService:
         self.repo = ProjectRepository(session)
 
     # --- reads --------------------------------------------------------------
+    async def get_project(self, project_id: uuid.UUID) -> Project:
+        project = await self.repo.get_by_id(project_id)
+        if project is None:
+            raise ResourceNotFoundError("Project not found")
+        return project
+
+    async def get_by_slug(self, slug: str, *, published_only: bool = True) -> Project:
+        project = await self.repo.get_by_slug(slug)
+        if project is None or (published_only and project.status != ContentStatus.PUBLISHED):
+            raise ResourceNotFoundError(f"Project '{slug}' not found")
+        return project
+
     async def list(
         self,
         *,
@@ -34,80 +50,57 @@ class ProjectService:
         category: str | None = None,
         skill: str | None = None,
     ) -> list[Project]:
-        if skill:
-            projects = await self.repo.list_by_skill_slug(skill)
-            if published_only:
-                projects = [p for p in projects if p.status == ContentStatus.PUBLISHED]
-            return self._apply_flags(projects, featured=featured, category=category)
-
-        filters = []
-        if published_only:
-            filters.append(Project.status == ContentStatus.PUBLISHED)
-        if featured is not None:
-            filters.append(Project.featured.is_(featured))
-        if category:
-            filters.append(Project.category == category)
-        return await self.repo.list(
-            filters=filters,
-            order_by=(Project.display_order, Project.published_at.desc()),
+        filters = ProjectFilters(
+            status=ContentStatus.PUBLISHED if published_only else None,
+            featured=featured,
+            category=category,
+            skill=skill,
         )
+        page = await self.repo.search(filters=filters, pagination=PageRequest(page_size=100))
+        return page.items
 
-    @staticmethod
-    def _apply_flags(
-        projects: list[Project], *, featured: bool | None, category: str | None
-    ) -> list[Project]:
-        if featured is not None:
-            projects = [p for p in projects if p.featured is featured]
-        if category:
-            projects = [p for p in projects if p.category == category]
-        return projects
+    async def search(
+        self, *, filters: ProjectFilters | None = None, pagination: PageRequest | None = None
+    ) -> Page[Project]:
+        return await self.repo.search(filters=filters, pagination=pagination)
 
-    async def get_by_slug(self, slug: str, *, published_only: bool = True) -> Project:
-        project = await self.repo.get_by_slug(slug)
-        if project is None or (published_only and project.status != ContentStatus.PUBLISHED):
-            raise NotFoundError(f"Project '{slug}' not found")
-        return project
-
-    async def get(self, project_id: uuid.UUID) -> Project:
-        project = await self.repo.get_by_id(project_id)
-        if project is None:
-            raise NotFoundError("Project not found")
-        return project
-
-    # --- writes -------------------------------------------------------------
-    async def create(self, data: ProjectCreate) -> Project:
-        slug = await self._resolve_slug(data.slug, data.title)
+    # --- writes (each method owns a single transaction) ---------------------
+    async def create_project(self, data: ProjectCreate) -> Project:
+        slug = await resolve_slug(self.repo, data.slug, data.title)
 
         project = Project(
             **data.model_dump(exclude={"slug", "skill_ids", "metrics", "status"}),
             slug=slug,
-            status=data.status,
+            status=ContentStatus.DRAFT,
         )
-        if data.status == ContentStatus.PUBLISHED:
-            project.published_at = datetime.now(UTC)
-
-        # Assign relationships on the still-transient instance *before* flushing.
-        # Mutating a loaded/persistent relationship collection would trigger a
-        # synchronous lazy-load and fail under async SQLAlchemy.
+        # Relationships assigned on the transient instance before the first flush
+        # (mutating a persistent relationship would trigger a sync lazy-load).
         project.skills = await self.repo.get_skills(data.skill_ids)
         project.metrics = [ProjectMetric(**m.model_dump()) for m in data.metrics]
 
-        self.session.add(project)
-        await self.session.flush()
-        await self.session.commit()
-        return await self.get(project.id)
+        # Publishing at creation time runs the same rule as publish_project().
+        if data.status == ContentStatus.PUBLISHED:
+            require_publishable(project, PUBLISH_REQUIRED_FIELDS)
+            mark_published(project)
 
-    async def update(self, project_id: uuid.UUID, data: ProjectUpdate) -> Project:
-        project = await self.get(project_id)
+        self.session.add(project)
+        try:
+            await self.session.commit()
+        except Exception:
+            await self.session.rollback()
+            raise
+        return await self.get_project(project.id)
+
+    async def update_project(self, project_id: uuid.UUID, data: ProjectUpdate) -> Project:
+        project = await self.get_project(project_id)
         values = data.model_dump(exclude_unset=True, exclude={"skill_ids"})
 
-        if "slug" in values and values["slug"]:
-            if await self.repo.exists_by_slug(values["slug"], exclude_id=project.id):
-                raise ConflictError(f"Slug '{values['slug']}' is already in use")
+        if values.get("slug") and await self.repo.exists_by_slug(
+            values["slug"], exclude_id=project.id
+        ):
+            raise DuplicateResourceError(f"Slug '{values['slug']}' is already in use")
 
-        # Manage publication date on status transitions.
-        new_status = values.get("status")
-        if new_status == ContentStatus.PUBLISHED and project.published_at is None:
+        if values.get("status") == ContentStatus.PUBLISHED and project.published_at is None:
             project.published_at = datetime.now(UTC)
 
         for key, value in values.items():
@@ -117,38 +110,31 @@ class ProjectService:
             project.skills = await self.repo.get_skills(data.skill_ids)
 
         await self.session.commit()
-        return await self.get(project.id)
+        return await self.get_project(project.id)
 
-    async def delete(self, project_id: uuid.UUID) -> None:
-        project = await self.get(project_id)
-        await self.repo.delete(project)
+    async def delete_project(self, project_id: uuid.UUID) -> None:
+        project = await self.get_project(project_id)
+        await self.repo.delete(project)  # soft delete — preserves history
         await self.session.commit()
 
-    async def publish(self, project_id: uuid.UUID) -> Project:
-        project = await self.get(project_id)
-        project.status = ContentStatus.PUBLISHED
-        if project.published_at is None:
-            project.published_at = datetime.now(UTC)
+    async def publish_project(self, project_id: uuid.UUID) -> Project:
+        project = await self.get_project(project_id)
+        require_publishable(project, PUBLISH_REQUIRED_FIELDS)
+        mark_published(project)  # DRAFT/ARCHIVED -> PUBLISHED (republish supported)
         await self.session.commit()
-        return await self.get(project.id)
+        return await self.get_project(project.id)
 
-    async def archive(self, project_id: uuid.UUID) -> Project:
-        project = await self.get(project_id)
-        project.status = ContentStatus.ARCHIVED
+    async def archive_project(self, project_id: uuid.UUID) -> Project:
+        project = await self.get_project(project_id)
+        mark_archived(project)  # keeps the row; not a delete
         await self.session.commit()
-        return await self.get(project.id)
+        return await self.get_project(project.id)
 
-    # --- helpers ------------------------------------------------------------
-    async def _resolve_slug(self, requested: str | None, title: str) -> str:
-        base = slugify(requested) if requested else slugify(title)
-        if not base:
-            raise ConflictError("Could not derive a slug from the title")
-        if requested and await self.repo.exists_by_slug(base):
-            raise ConflictError(f"Slug '{base}' is already in use")
-        # Auto-generated slugs get a numeric suffix to stay unique.
-        candidate = base
-        suffix = 2
-        while await self.repo.exists_by_slug(candidate):
-            candidate = f"{base}-{suffix}"
-            suffix += 1
-        return candidate
+    async def set_featured(self, project_id: uuid.UUID, featured: bool = True) -> Project:
+        project = await self.get_project(project_id)
+        project.featured = featured
+        await self.session.commit()
+        return await self.get_project(project.id)
+
+    async def unset_featured(self, project_id: uuid.UUID) -> Project:
+        return await self.set_featured(project_id, featured=False)

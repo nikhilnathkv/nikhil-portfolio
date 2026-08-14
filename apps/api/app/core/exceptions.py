@@ -1,7 +1,8 @@
-"""Domain exceptions mapped to the standard API error envelope.
+"""Domain / application exceptions.
 
-Services raise these; a single handler in ``app.main`` renders them as
-``{"error": {"code", "message"}}`` with the right HTTP status.
+Services raise these instead of leaking SQLAlchemy errors. A single handler in
+``app.main`` renders them as the standard ``{"error": {"code", "message"}}``
+envelope with the right HTTP status; the service layer never imports FastAPI.
 """
 
 from __future__ import annotations
@@ -18,16 +19,35 @@ class AppError(Exception):
             self.code = code
 
 
-class NotFoundError(AppError):
+class ResourceNotFoundError(AppError):
     status_code = 404
     code = "NOT_FOUND"
 
 
-class ConflictError(AppError):
+class DuplicateResourceError(AppError):
     status_code = 409
     code = "CONFLICT"
+
+
+class InvalidStateTransitionError(AppError):
+    """A lifecycle transition that the domain does not permit."""
+
+    status_code = 409
+    code = "INVALID_STATE_TRANSITION"
+
+
+class BusinessRuleViolationError(AppError):
+    """A business rule was violated (e.g. publishing an incomplete record)."""
+
+    status_code = 422
+    code = "BUSINESS_RULE_VIOLATION"
 
 
 class ValidationError(AppError):
     status_code = 400
     code = "VALIDATION_ERROR"
+
+
+# Backwards-compatible aliases (earlier milestones used these names).
+NotFoundError = ResourceNotFoundError
+ConflictError = DuplicateResourceError

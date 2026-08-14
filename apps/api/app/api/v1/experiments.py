@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.schemas.common import SuccessResponse, success
 from app.schemas.experiment import ExperimentListResponse, ExperimentResponse
-from app.services.content import ExperimentService
+from app.services.experiment import ExperimentService
 
 router = APIRouter(prefix="/experiments", tags=["experiments"])
 
