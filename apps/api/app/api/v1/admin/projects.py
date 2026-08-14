@@ -2,9 +2,10 @@
 
 import uuid
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 
 from app.api.deps import get_project_service, pagination_params
+from app.models.enums import ContentStatus
 from app.repositories.pagination import PageRequest
 from app.repositories.project import ProjectFilters
 from app.schemas.common import SuccessResponse, paginated, success
@@ -23,16 +24,37 @@ router = APIRouter(prefix="/projects", tags=["Admin: Projects"])
     "", response_model=SuccessResponse[list[ProjectListResponse]], summary="List all projects"
 )
 async def list_projects(
+    q: str | None = Query(default=None, description="Search title / short description / category"),
+    status_filter: ContentStatus | None = Query(default=None, alias="status"),
+    category: str | None = Query(default=None),
+    featured: bool | None = Query(default=None),
+    sort: str | None = Query(
+        default="updated_at",
+        description="One of: display_order, created_at, updated_at, published_at",
+    ),
     pagination: PageRequest = Depends(pagination_params),
     service: ProjectService = Depends(get_project_service),
 ) -> SuccessResponse[list[ProjectListResponse]]:
-    page = await service.search(filters=ProjectFilters(), pagination=pagination)
+    filters = ProjectFilters(status=status_filter, category=category, featured=featured, search=q)
+    page = await service.search(filters=filters, pagination=pagination, sort=sort)
     return paginated(
         [ProjectListResponse.model_validate(p) for p in page.items],
         page=page.page,
         page_size=page.page_size,
         total=page.total,
     )
+
+
+@router.get(
+    "/by-slug/{slug}",
+    response_model=SuccessResponse[ProjectResponse],
+    summary="Get a project by slug (any status) — used by the admin preview",
+)
+async def get_project_by_slug(
+    slug: str, service: ProjectService = Depends(get_project_service)
+) -> SuccessResponse[ProjectResponse]:
+    project = await service.get_by_slug(slug, published_only=False)
+    return success(ProjectResponse.model_validate(project))
 
 
 @router.post(
@@ -87,9 +109,30 @@ async def publish_project(
 
 
 @router.post(
+    "/{project_id}/unpublish", response_model=SuccessResponse[ProjectResponse], summary="Unpublish"
+)
+async def unpublish_project(
+    project_id: uuid.UUID, service: ProjectService = Depends(get_project_service)
+) -> SuccessResponse[ProjectResponse]:
+    return success(ProjectResponse.model_validate(await service.unpublish_project(project_id)))
+
+
+@router.post(
     "/{project_id}/archive", response_model=SuccessResponse[ProjectResponse], summary="Archive"
 )
 async def archive_project(
     project_id: uuid.UUID, service: ProjectService = Depends(get_project_service)
 ) -> SuccessResponse[ProjectResponse]:
     return success(ProjectResponse.model_validate(await service.archive_project(project_id)))
+
+
+@router.post(
+    "/{project_id}/duplicate",
+    response_model=SuccessResponse[ProjectResponse],
+    status_code=status.HTTP_201_CREATED,
+    summary="Duplicate a project as a new draft",
+)
+async def duplicate_project(
+    project_id: uuid.UUID, service: ProjectService = Depends(get_project_service)
+) -> SuccessResponse[ProjectResponse]:
+    return success(ProjectResponse.model_validate(await service.duplicate_project(project_id)))

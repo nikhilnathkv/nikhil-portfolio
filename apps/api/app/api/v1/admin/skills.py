@@ -77,6 +77,18 @@ async def delete_category(
 
 
 # --- skills ----------------------------------------------------------------
+@router.get(
+    "/skills",
+    response_model=SuccessResponse[list[SkillResponse]],
+    summary="List all skills (flat) — used by the project technology selector",
+)
+async def list_skills(
+    service: SkillService = Depends(get_skill_service),
+) -> SuccessResponse[list[SkillResponse]]:
+    skills = await service.list_skills()
+    return success([SkillResponse.model_validate(s) for s in skills])
+
+
 @router.post(
     "/skills",
     response_model=SuccessResponse[SkillResponse],

@@ -45,12 +45,15 @@ class ProjectBase(BaseModel):
     solution: str | None = None
     architecture: str | None = None
     engineering_decisions: str | None = None
+    challenges: str | None = None
     lessons_learned: str | None = None
     category: str | None = Field(default=None, max_length=100)
     featured: bool = False
     display_order: int = 0
     github_url: HttpUrlStr | None = Field(default=None, max_length=512)
     live_url: HttpUrlStr | None = Field(default=None, max_length=512)
+    hero_image_url: HttpUrlStr | None = Field(default=None, max_length=512)
+    architecture_diagram_url: HttpUrlStr | None = Field(default=None, max_length=512)
     seo_title: str | None = Field(default=None, max_length=255)
     seo_description: str | None = Field(default=None, max_length=500)
 
@@ -73,6 +76,7 @@ class ProjectUpdate(BaseModel):
     solution: str | None = None
     architecture: str | None = None
     engineering_decisions: str | None = None
+    challenges: str | None = None
     lessons_learned: str | None = None
     category: str | None = Field(default=None, max_length=100)
     status: ContentStatus | None = None
@@ -80,9 +84,13 @@ class ProjectUpdate(BaseModel):
     display_order: int | None = None
     github_url: HttpUrlStr | None = Field(default=None, max_length=512)
     live_url: HttpUrlStr | None = Field(default=None, max_length=512)
+    hero_image_url: HttpUrlStr | None = Field(default=None, max_length=512)
+    architecture_diagram_url: HttpUrlStr | None = Field(default=None, max_length=512)
     seo_title: str | None = Field(default=None, max_length=255)
     seo_description: str | None = Field(default=None, max_length=500)
     skill_ids: list[uuid.UUID] | None = None
+    # When provided, the project's metrics are fully replaced with this set.
+    metrics: list[ProjectMetricCreate] | None = None
 
 
 class ProjectResponse(TimestampedResponse):
@@ -95,6 +103,7 @@ class ProjectResponse(TimestampedResponse):
     solution: str | None = None
     architecture: str | None = None
     engineering_decisions: str | None = None
+    challenges: str | None = None
     lessons_learned: str | None = None
     category: str | None = None
     status: ContentStatus
@@ -102,6 +111,8 @@ class ProjectResponse(TimestampedResponse):
     display_order: int
     github_url: str | None = None
     live_url: str | None = None
+    hero_image_url: str | None = None
+    architecture_diagram_url: str | None = None
     seo_title: str | None = None
     seo_description: str | None = None
     published_at: datetime | None = None

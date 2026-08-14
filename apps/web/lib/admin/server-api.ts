@@ -2,6 +2,7 @@ import 'server-only';
 
 import { cookies } from 'next/headers';
 
+import type { Project } from '@/lib/admin/project-types';
 import type { DashboardSummary, User } from '@/lib/admin/types';
 
 /** API base for server-side calls (Next server → FastAPI). */
@@ -28,6 +29,30 @@ export async function getCurrentUser(): Promise<User | null> {
     const res = await serverFetch('/auth/me');
     if (!res.ok) return null;
     const body = (await res.json()) as { data: User };
+    return body.data;
+  } catch {
+    return null;
+  }
+}
+
+/** Fetch a single project (any status) by id for the admin editor. */
+export async function getAdminProject(id: string): Promise<Project | null> {
+  try {
+    const res = await serverFetch(`/admin/projects/${id}`);
+    if (!res.ok) return null;
+    const body = (await res.json()) as { data: Project };
+    return body.data;
+  } catch {
+    return null;
+  }
+}
+
+/** Fetch a project (any status) by slug — used by the authenticated preview. */
+export async function getAdminProjectBySlug(slug: string): Promise<Project | null> {
+  try {
+    const res = await serverFetch(`/admin/projects/by-slug/${slug}`);
+    if (!res.ok) return null;
+    const body = (await res.json()) as { data: Project };
     return body.data;
   } catch {
     return null;

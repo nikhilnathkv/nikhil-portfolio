@@ -6,7 +6,7 @@ import uuid
 from dataclasses import dataclass
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 
 from app.models.enums import ContentStatus
 from app.models.project import Project, project_skills
@@ -23,6 +23,7 @@ class ProjectFilters:
     category: str | None = None
     featured: bool | None = None
     skill: str | None = None  # skill name
+    search: str | None = None  # free-text across title / short_description / category
 
 
 # Default sort: manual ordering first, then most recent.
@@ -32,6 +33,7 @@ DEFAULT_PROJECT_ORDER = (Project.display_order.asc(), Project.created_at.desc())
 PROJECT_SORTS = {
     "display_order": (Project.display_order.asc(), Project.created_at.desc()),
     "created_at": (Project.created_at.desc(),),
+    "updated_at": (Project.updated_at.desc(),),
     "published_at": (Project.published_at.desc(), Project.created_at.desc()),
 }
 
@@ -46,6 +48,15 @@ class ProjectRepository(SlugRepository[Project]):
             stmt = stmt.where(Project.category == filters.category)
         if filters.featured is not None:
             stmt = stmt.where(Project.featured.is_(filters.featured))
+        if filters.search:
+            like = f"%{filters.search}%"
+            stmt = stmt.where(
+                or_(
+                    Project.title.ilike(like),
+                    Project.short_description.ilike(like),
+                    Project.category.ilike(like),
+                )
+            )
         if filters.skill is not None:
             stmt = (
                 stmt.join(project_skills, Project.id == project_skills.c.project_id)
