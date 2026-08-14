@@ -1,27 +1,34 @@
-"""Research endpoints."""
+"""Research endpoints (published only)."""
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database import get_db
+from app.api.deps import get_research_service
 from app.schemas.common import SuccessResponse, success
 from app.schemas.research import ResearchListResponse, ResearchResponse
-from app.services.content import ResearchService
+from app.services.research import ResearchService
 
-router = APIRouter(prefix="/research", tags=["research"])
+router = APIRouter(prefix="/research", tags=["Research"])
 
 
-@router.get("", response_model=SuccessResponse[list[ResearchListResponse]])
+@router.get(
+    "",
+    response_model=SuccessResponse[list[ResearchListResponse]],
+    summary="List published research",
+)
 async def list_research(
-    db: AsyncSession = Depends(get_db),
+    service: ResearchService = Depends(get_research_service),
 ) -> SuccessResponse[list[ResearchListResponse]]:
-    items = await ResearchService(db).list()
+    items = await service.list()
     return success([ResearchListResponse.model_validate(i) for i in items])
 
 
-@router.get("/{slug}", response_model=SuccessResponse[ResearchResponse])
+@router.get(
+    "/{slug}",
+    response_model=SuccessResponse[ResearchResponse],
+    summary="Get a published research item by slug",
+)
 async def get_research(
-    slug: str, db: AsyncSession = Depends(get_db)
+    slug: str, service: ResearchService = Depends(get_research_service)
 ) -> SuccessResponse[ResearchResponse]:
-    item = await ResearchService(db).get_by_slug(slug)
+    item = await service.get_by_slug(slug)
     return success(ResearchResponse.model_validate(item))

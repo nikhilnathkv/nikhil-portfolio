@@ -9,6 +9,8 @@ def _payload(**overrides) -> dict:
     data = {
         "title": "Aviation Intelligence",
         "short_description": "Forecasting aviation demand with ML.",
+        # description + category are required by the publish business rule (M2.5).
+        "description": "A full write-up of the aviation intelligence platform.",
         "category": "ml",
     }
     data.update(overrides)

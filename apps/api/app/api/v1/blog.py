@@ -1,27 +1,43 @@
-"""Blog endpoints."""
+"""Blog endpoints (published only, newest first)."""
 
-from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends, Query
 
-from app.core.database import get_db
+from app.api.deps import get_blog_service, pagination_params
+from app.repositories.pagination import PageRequest
 from app.schemas.blog import BlogPostListResponse, BlogPostResponse
-from app.schemas.common import SuccessResponse, success
-from app.services.content import BlogService
+from app.schemas.common import SuccessResponse, paginated, success
+from app.services.blog import BlogService
 
-router = APIRouter(prefix="/blog", tags=["blog"])
+router = APIRouter(prefix="/blog", tags=["Blog"])
 
 
-@router.get("", response_model=SuccessResponse[list[BlogPostListResponse]])
+@router.get(
+    "",
+    response_model=SuccessResponse[list[BlogPostListResponse]],
+    summary="List published blog posts",
+)
 async def list_blog(
-    db: AsyncSession = Depends(get_db),
+    category: str | None = Query(default=None),
+    tag: str | None = Query(default=None),
+    pagination: PageRequest = Depends(pagination_params),
+    service: BlogService = Depends(get_blog_service),
 ) -> SuccessResponse[list[BlogPostListResponse]]:
-    posts = await BlogService(db).list()
-    return success([BlogPostListResponse.model_validate(p) for p in posts])
+    page = await service.list_public(category=category, tag=tag, pagination=pagination)
+    return paginated(
+        [BlogPostListResponse.model_validate(p) for p in page.items],
+        page=page.page,
+        page_size=page.page_size,
+        total=page.total,
+    )
 
 
-@router.get("/{slug}", response_model=SuccessResponse[BlogPostResponse])
+@router.get(
+    "/{slug}",
+    response_model=SuccessResponse[BlogPostResponse],
+    summary="Get a published blog post by slug",
+)
 async def get_blog(
-    slug: str, db: AsyncSession = Depends(get_db)
+    slug: str, service: BlogService = Depends(get_blog_service)
 ) -> SuccessResponse[BlogPostResponse]:
-    post = await BlogService(db).get_by_slug(slug)
+    post = await service.get_by_slug(slug)
     return success(BlogPostResponse.model_validate(post))

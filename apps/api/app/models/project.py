@@ -53,7 +53,12 @@ class Project(UUIDPKMixin, TimestampMixin, SoftDeleteMixin, Base):
     solution: Mapped[str | None] = mapped_column(Text, nullable=True)
     architecture: Mapped[str | None] = mapped_column(Text, nullable=True)
     engineering_decisions: Mapped[str | None] = mapped_column(Text, nullable=True)
+    challenges: Mapped[str | None] = mapped_column(Text, nullable=True)
     lessons_learned: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # Visual assets (URLs for now; a media library arrives in a later milestone).
+    hero_image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    architecture_diagram_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
 
     category: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
     status: Mapped[ContentStatus] = mapped_column(

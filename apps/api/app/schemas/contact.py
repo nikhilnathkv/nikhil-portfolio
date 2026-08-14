@@ -23,3 +23,9 @@ class ContactMessageResponse(ORMModel):
     status: ContactStatus
     created_at: datetime
     read_at: datetime | None = None
+
+
+class ContactAck(BaseModel):
+    """Public acknowledgement — deliberately does not echo stored data back."""
+
+    message: str = "Message received successfully."

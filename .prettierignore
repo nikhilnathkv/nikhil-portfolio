@@ -4,6 +4,9 @@ out
 dist
 build
 coverage
+**/test-results
+**/playwright-report
+**/blob-report
 pnpm-lock.yaml
 apps/api
 **/__pycache__

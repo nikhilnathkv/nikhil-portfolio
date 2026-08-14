@@ -15,11 +15,30 @@ from app.api.router import api_router
 from app.core.config import settings
 from app.core.exceptions import AppError
 
+TAGS_METADATA = [
+    {"name": "Profile", "description": "Public site-owner profile."},
+    {"name": "Experience", "description": "Work experience, most recent first."},
+    {"name": "Projects", "description": "Published projects, filtering, and detail pages."},
+    {"name": "Skills", "description": "Skill categories with their skills."},
+    {"name": "Blog", "description": "Published blog posts."},
+    {"name": "Research", "description": "Published research."},
+    {"name": "Experiments", "description": "Published experiments."},
+    {"name": "Repositories", "description": "GitHub repository metadata."},
+    {"name": "Resume", "description": "The active resume."},
+    {"name": "Contact", "description": "Submit a contact message (public write)."},
+    {"name": "Health", "description": "Liveness and readiness probes."},
+]
+
 
 def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.project_name,
         version=__version__,
+        description=(
+            "Public, versioned, read-only API for the portfolio. All responses use "
+            "the `{data, meta}` / `{error}` envelope. Drafts are never exposed."
+        ),
+        openapi_tags=TAGS_METADATA,
         docs_url="/docs",
         openapi_url="/openapi.json",
     )
