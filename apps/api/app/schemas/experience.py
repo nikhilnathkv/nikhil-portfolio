@@ -6,6 +6,7 @@ from datetime import date
 from pydantic import BaseModel, Field
 
 from app.schemas.base import TimestampedResponse
+from app.schemas.project import ProjectRef
 
 
 class ExperienceBase(BaseModel):
@@ -21,7 +22,7 @@ class ExperienceBase(BaseModel):
 
 
 class ExperienceCreate(ExperienceBase):
-    pass
+    project_ids: list[uuid.UUID] = []
 
 
 class ExperienceUpdate(BaseModel):
@@ -34,6 +35,8 @@ class ExperienceUpdate(BaseModel):
     summary: str | None = None
     description: str | None = None
     display_order: int | None = None
+    # None = leave associations unchanged; a list (incl. []) replaces them.
+    project_ids: list[uuid.UUID] | None = None
 
 
 class ExperienceResponse(TimestampedResponse):
@@ -47,6 +50,7 @@ class ExperienceResponse(TimestampedResponse):
     summary: str | None = None
     description: str | None = None
     display_order: int
+    projects: list[ProjectRef] = []
 
 
 class ExperienceListResponse(TimestampedResponse):

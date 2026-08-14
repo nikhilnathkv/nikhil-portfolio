@@ -101,6 +101,22 @@ class ProjectRepository(SlugRepository[Project]):
         result = await self.session.execute(select(Skill).where(Skill.id.in_(skill_ids)))
         return list(result.scalars().all())
 
+    async def get_by_ids(self, project_ids: list[uuid.UUID]) -> list[Project]:
+        if not project_ids:
+            return []
+        result = await self.session.execute(self._base_select().where(Project.id.in_(project_ids)))
+        return list(result.scalars().unique().all())
+
+    async def list_by_skill_id(self, skill_id: uuid.UUID) -> list[Project]:
+        stmt = (
+            self._base_select()
+            .join(project_skills, Project.id == project_skills.c.project_id)
+            .where(project_skills.c.skill_id == skill_id)
+            .order_by(*DEFAULT_PROJECT_ORDER)
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().unique().all())
+
     async def list_by_skill_slug(self, skill_name: str) -> list[Project]:
         stmt = (
             self._base_select()
