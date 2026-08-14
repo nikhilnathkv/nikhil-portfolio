@@ -47,22 +47,15 @@ Slug = Annotated[
 # --- response envelope -----------------------------------------------------
 
 
+class PaginationMeta(BaseModel):
+    page: int
+    page_size: int
+    total: int
+    total_pages: int
+
+
 class Meta(BaseModel):
-    total: int | None = None
-    page: int | None = None
-    page_size: int | None = None
-
-
-class Pagination(BaseModel):
-    """Pagination parameters / metadata for list endpoints."""
-
-    page: int = 1
-    page_size: int = 20
-    total: int | None = None
-
-    @property
-    def offset(self) -> int:
-        return (self.page - 1) * self.page_size
+    pagination: PaginationMeta | None = None
 
 
 class SuccessResponse[T](BaseModel):
@@ -83,3 +76,21 @@ class ErrorResponse(BaseModel):
 def success[T](data: T, meta: Meta | None = None) -> SuccessResponse[T]:
     """Wrap a payload in the standard success envelope."""
     return SuccessResponse(data=data, meta=meta)
+
+
+def paginated[T](
+    items: list[T], *, page: int, page_size: int, total: int
+) -> SuccessResponse[list[T]]:
+    """Wrap a page of items with pagination metadata."""
+    total_pages = (total + page_size - 1) // page_size if page_size else 0
+    return SuccessResponse(
+        data=items,
+        meta=Meta(
+            pagination=PaginationMeta(
+                page=page,
+                page_size=page_size,
+                total=total,
+                total_pages=total_pages,
+            )
+        ),
+    )

@@ -23,7 +23,10 @@ class SkillService:
         self.skills = SkillRepository(session)
 
     # --- reads --------------------------------------------------------------
-    async def list_categories(self) -> list[SkillCategory]:
+    async def list_categories(self, *, category_name: str | None = None) -> list[SkillCategory]:
+        if category_name is not None:
+            category = await self.categories.get_by_name(category_name)
+            return [category] if category is not None else []
         return await self.categories.list_ordered()
 
     async def list_skills(self) -> list[Skill]:

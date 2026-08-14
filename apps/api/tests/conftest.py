@@ -86,3 +86,9 @@ async def client(db_session):
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
     app.dependency_overrides.clear()
+    # The health endpoints use the app's shared engine directly (not the
+    # overridden test session). Dispose it so its pooled connections don't leak
+    # across per-test event loops.
+    from app.core.database import engine as app_engine
+
+    await app_engine.dispose()

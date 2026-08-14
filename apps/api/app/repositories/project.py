@@ -28,6 +28,13 @@ class ProjectFilters:
 # Default sort: manual ordering first, then most recent.
 DEFAULT_PROJECT_ORDER = (Project.display_order.asc(), Project.created_at.desc())
 
+# Whitelisted sort options — never accept arbitrary column names from clients.
+PROJECT_SORTS = {
+    "display_order": (Project.display_order.asc(), Project.created_at.desc()),
+    "created_at": (Project.created_at.desc(),),
+    "published_at": (Project.published_at.desc(), Project.created_at.desc()),
+}
+
 
 class ProjectRepository(SlugRepository[Project]):
     model = Project
@@ -52,10 +59,12 @@ class ProjectRepository(SlugRepository[Project]):
         *,
         filters: ProjectFilters | None = None,
         pagination: PageRequest | None = None,
+        sort: str | None = None,
     ) -> Page[Project]:
         """Filtered, paginated, sorted project listing."""
         filters = filters or ProjectFilters()
         pagination = pagination or PageRequest()
+        order_by = PROJECT_SORTS.get(sort or "", DEFAULT_PROJECT_ORDER)
 
         base = self._apply_filters(self._base_select(), filters)
 
@@ -64,9 +73,7 @@ class ProjectRepository(SlugRepository[Project]):
         count_stmt = select(func.count()).select_from(id_subquery)
         total = int((await self.session.execute(count_stmt)).scalar_one())
 
-        stmt = (
-            base.order_by(*DEFAULT_PROJECT_ORDER).offset(pagination.offset).limit(pagination.limit)
-        )
+        stmt = base.order_by(*order_by).offset(pagination.offset).limit(pagination.limit)
         items = list((await self.session.execute(stmt)).scalars().unique().all())
         return Page(items=items, total=total, page=pagination.page, page_size=pagination.page_size)
 

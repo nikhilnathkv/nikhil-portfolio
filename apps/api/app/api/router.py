@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from app.api.v1 import (
     blog,
+    contact,
     experience,
     experiments,
     health,
@@ -26,3 +27,4 @@ api_router.include_router(research.router)
 api_router.include_router(experiments.router)
 api_router.include_router(repositories.router)
 api_router.include_router(resume.router)
+api_router.include_router(contact.router)

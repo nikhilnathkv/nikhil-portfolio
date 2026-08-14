@@ -22,8 +22,14 @@ class ExperimentService:
         self.projects = ProjectRepository(session)
 
     # --- public reads -------------------------------------------------------
-    async def list(self, *, published_only: bool = True) -> list[Experiment]:
-        filters = [Experiment.status == ContentStatus.PUBLISHED] if published_only else []
+    async def list(
+        self, *, published_only: bool = True, project_id: uuid.UUID | None = None
+    ) -> list[Experiment]:
+        filters = []
+        if published_only:
+            filters.append(Experiment.status == ContentStatus.PUBLISHED)
+        if project_id is not None:
+            filters.append(Experiment.project_id == project_id)
         return await self.repo.list(filters=filters, order_by=(Experiment.created_at.desc(),))
 
     async def get_by_slug(self, slug: str, *, published_only: bool = True) -> Experiment:

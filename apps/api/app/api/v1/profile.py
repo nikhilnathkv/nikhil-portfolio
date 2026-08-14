@@ -1,17 +1,17 @@
 """Profile endpoint."""
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database import get_db
+from app.api.deps import get_profile_service
 from app.schemas.common import SuccessResponse, success
 from app.schemas.profile import ProfileResponse
 from app.services.profile import ProfileService
 
-router = APIRouter(prefix="/profile", tags=["profile"])
+router = APIRouter(prefix="/profile", tags=["Profile"])
 
 
-@router.get("", response_model=SuccessResponse[ProfileResponse])
-async def get_profile(db: AsyncSession = Depends(get_db)) -> SuccessResponse[ProfileResponse]:
-    profile = await ProfileService(db).get_profile()
-    return success(ProfileResponse.model_validate(profile))
+@router.get("", response_model=SuccessResponse[ProfileResponse], summary="Get the public profile")
+async def get_profile(
+    service: ProfileService = Depends(get_profile_service),
+) -> SuccessResponse[ProfileResponse]:
+    return success(ProfileResponse.model_validate(await service.get_profile()))

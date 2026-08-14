@@ -64,6 +64,29 @@ class ProjectService:
     ) -> Page[Project]:
         return await self.repo.search(filters=filters, pagination=pagination)
 
+    async def list_public(
+        self,
+        *,
+        featured: bool | None = None,
+        category: str | None = None,
+        skill: str | None = None,
+        status: str | None = None,
+        sort: str | None = None,
+        pagination: PageRequest | None = None,
+    ) -> Page[Project]:
+        """Public listing. Only PUBLISHED projects are ever returned, regardless
+        of any client-supplied ``status`` — drafts/archived never leak."""
+        pagination = pagination or PageRequest()
+        if status is not None and status.lower() != ContentStatus.PUBLISHED.value:
+            return Page(items=[], total=0, page=pagination.page, page_size=pagination.page_size)
+        filters = ProjectFilters(
+            status=ContentStatus.PUBLISHED,
+            featured=featured,
+            category=category,
+            skill=skill,
+        )
+        return await self.repo.search(filters=filters, pagination=pagination, sort=sort)
+
     # --- writes (each method owns a single transaction) ---------------------
     async def create_project(self, data: ProjectCreate) -> Project:
         slug = await resolve_slug(self.repo, data.slug, data.title)

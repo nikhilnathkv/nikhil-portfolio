@@ -10,6 +10,7 @@ from app.core.exceptions import DuplicateResourceError, ResourceNotFoundError
 from app.models.blog import BlogPost
 from app.models.enums import ContentStatus
 from app.repositories.blog import BlogRepository
+from app.repositories.pagination import Page, PageRequest
 from app.schemas.blog import BlogPostCreate, BlogPostUpdate
 from app.services._helpers import mark_archived, mark_published, require_publishable, resolve_slug
 
@@ -26,6 +27,15 @@ class BlogService:
         if published_only:
             return await self.repo.get_published()
         return await self.list_posts()
+
+    async def list_public(
+        self,
+        *,
+        category: str | None = None,
+        tag: str | None = None,
+        pagination: PageRequest | None = None,
+    ) -> Page[BlogPost]:
+        return await self.repo.search_published(category=category, tag=tag, pagination=pagination)
 
     async def get_by_slug(self, slug: str, *, published_only: bool = True) -> BlogPost:
         post = await self.repo.get_by_slug(slug)

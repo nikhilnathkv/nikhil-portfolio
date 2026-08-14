@@ -21,6 +21,7 @@ class SkillCategory(UUIDPKMixin, TimestampMixin, Base):
         back_populates="category",
         cascade="all, delete-orphan",
         order_by="Skill.display_order",
+        lazy="selectin",
     )
 
 
