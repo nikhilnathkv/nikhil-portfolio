@@ -7,6 +7,7 @@ from pydantic import BaseModel, EmailStr, Field
 from app.schemas.base import TimestampedResponse
 from app.schemas.common import HttpUrlStr
 from app.schemas.media import MediaResponse
+from app.schemas.resume import ResumeResponse
 
 
 class ProfileBase(BaseModel):
@@ -48,4 +49,7 @@ class ProfileResponse(TimestampedResponse):
     email: str | None = None
     linkedin_url: str | None = None
     github_url: str | None = None
+    profile_image_id: uuid.UUID | None = None
+    resume_id: uuid.UUID | None = None
     profile_image: MediaResponse | None = None
+    resume: ResumeResponse | None = None

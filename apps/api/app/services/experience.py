@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import BusinessRuleViolationError, ResourceNotFoundError
 from app.models.experience import Experience
 from app.repositories.experience import ExperienceRepository
+from app.repositories.project import ProjectRepository
 from app.schemas.experience import ExperienceCreate, ExperienceUpdate
 
 
@@ -16,6 +17,7 @@ class ExperienceService:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
         self.repo = ExperienceRepository(session)
+        self.projects = ProjectRepository(session)
 
     async def get_experience(self, experience_id: uuid.UUID) -> Experience:
         item = await self.repo.get_by_id(experience_id)
@@ -30,8 +32,10 @@ class ExperienceService:
         return await self.repo.get_current()
 
     async def create_experience(self, data: ExperienceCreate) -> Experience:
-        values = self._normalize(data.model_dump())
+        values = self._normalize(data.model_dump(exclude={"project_ids"}))
         experience = Experience(**values)
+        # Assign the relationship on the transient instance before the first flush.
+        experience.projects = await self.projects.get_by_ids(data.project_ids)
         if experience.is_current:
             await self._demote_other_current(exclude_id=None)
         self.session.add(experience)
@@ -42,7 +46,7 @@ class ExperienceService:
         self, experience_id: uuid.UUID, data: ExperienceUpdate
     ) -> Experience:
         experience = await self.get_experience(experience_id)
-        values = data.model_dump(exclude_unset=True)
+        values = data.model_dump(exclude_unset=True, exclude={"project_ids"})
 
         # Validate the resulting state (merge current values with the update).
         merged = {
@@ -55,6 +59,9 @@ class ExperienceService:
 
         for key, value in values.items():
             setattr(experience, key, value)
+
+        if data.project_ids is not None:
+            experience.projects = await self.projects.get_by_ids(data.project_ids)
 
         if experience.is_current:
             await self._demote_other_current(exclude_id=experience.id)

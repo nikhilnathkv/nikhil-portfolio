@@ -37,6 +37,16 @@ class ProjectMetricResponse(BaseModel):
 
 
 # --- Project ---------------------------------------------------------------
+class ProjectRef(BaseModel):
+    """Light project reference for embedding in other resources (no cycles)."""
+
+    id: uuid.UUID
+    title: str
+    slug: str
+
+    model_config = {"from_attributes": True}
+
+
 class ProjectBase(BaseModel):
     title: str = Field(min_length=1, max_length=255)
     short_description: str = Field(min_length=1, max_length=500)

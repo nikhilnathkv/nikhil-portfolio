@@ -7,7 +7,7 @@ Alembic autogenerate and ``metadata.create_all`` see the full schema.
 from app.models.blog import BlogPost, BlogTag, blog_post_tags
 from app.models.contact_message import ContactMessage
 from app.models.enums import ContactStatus, ContentStatus, UserRole
-from app.models.experience import Experience
+from app.models.experience import Experience, experience_projects
 from app.models.experiment import Experiment
 from app.models.media import Media
 from app.models.profile import Profile
@@ -28,6 +28,7 @@ __all__ = [
     "ContactStatus",
     "ContentStatus",
     "Experience",
+    "experience_projects",
     "Experiment",
     "Media",
     "Profile",

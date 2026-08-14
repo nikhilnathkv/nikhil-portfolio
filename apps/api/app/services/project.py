@@ -36,6 +36,10 @@ class ProjectService:
             raise ResourceNotFoundError("Project not found")
         return project
 
+    async def projects_using_skill(self, skill_id: uuid.UUID) -> list[Project]:
+        """All projects referencing a given skill (for the admin usage indicator)."""
+        return await self.repo.list_by_skill_id(skill_id)
+
     async def get_by_slug(self, slug: str, *, published_only: bool = True) -> Project:
         project = await self.repo.get_by_slug(slug)
         if project is None or (published_only and project.status != ContentStatus.PUBLISHED):

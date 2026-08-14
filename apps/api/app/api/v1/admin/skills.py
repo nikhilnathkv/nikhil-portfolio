@@ -5,8 +5,9 @@ import uuid
 from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel
 
-from app.api.deps import get_skill_service
+from app.api.deps import get_project_service, get_skill_service
 from app.schemas.common import SuccessResponse, success
+from app.schemas.project import ProjectRef
 from app.schemas.skill import (
     SkillCategoryCreate,
     SkillCategoryResponse,
@@ -14,6 +15,7 @@ from app.schemas.skill import (
     SkillResponse,
     SkillUpdate,
 )
+from app.services.project import ProjectService
 from app.services.skill import SkillService
 
 router = APIRouter(tags=["Admin: Skills"])
@@ -87,6 +89,18 @@ async def list_skills(
 ) -> SuccessResponse[list[SkillResponse]]:
     skills = await service.list_skills()
     return success([SkillResponse.model_validate(s) for s in skills])
+
+
+@router.get(
+    "/skills/{skill_id}/projects",
+    response_model=SuccessResponse[list[ProjectRef]],
+    summary="Projects using a skill (usage indicator)",
+)
+async def skill_usage(
+    skill_id: uuid.UUID, service: ProjectService = Depends(get_project_service)
+) -> SuccessResponse[list[ProjectRef]]:
+    projects = await service.projects_using_skill(skill_id)
+    return success([ProjectRef.model_validate(p) for p in projects])
 
 
 @router.post(

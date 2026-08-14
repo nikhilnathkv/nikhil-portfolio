@@ -2,7 +2,9 @@ import 'server-only';
 
 import { cookies } from 'next/headers';
 
+import type { Experience } from '@/lib/admin/experience-types';
 import type { Project } from '@/lib/admin/project-types';
+import type { Profile } from '@/lib/admin/profile-types';
 import type { DashboardSummary, User } from '@/lib/admin/types';
 
 /** API base for server-side calls (Next server → FastAPI). */
@@ -53,6 +55,30 @@ export async function getAdminProjectBySlug(slug: string): Promise<Project | nul
     const res = await serverFetch(`/admin/projects/by-slug/${slug}`);
     if (!res.ok) return null;
     const body = (await res.json()) as { data: Project };
+    return body.data;
+  } catch {
+    return null;
+  }
+}
+
+/** Fetch a single experience entry by id for the admin editor. */
+export async function getAdminExperience(id: string): Promise<Experience | null> {
+  try {
+    const res = await serverFetch(`/admin/experience/${id}`);
+    if (!res.ok) return null;
+    const body = (await res.json()) as { data: Experience };
+    return body.data;
+  } catch {
+    return null;
+  }
+}
+
+/** The singleton profile, or null when it hasn't been configured yet (404). */
+export async function getAdminProfile(): Promise<Profile | null> {
+  try {
+    const res = await serverFetch('/admin/profile');
+    if (!res.ok) return null;
+    const body = (await res.json()) as { data: Profile };
     return body.data;
   } catch {
     return null;
