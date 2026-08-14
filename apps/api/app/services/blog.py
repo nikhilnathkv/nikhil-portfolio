@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import DuplicateResourceError, ResourceNotFoundError
 from app.models.blog import BlogPost
 from app.models.enums import ContentStatus
-from app.repositories.blog import BlogRepository
+from app.repositories.blog import BlogFilters, BlogRepository
 from app.repositories.pagination import Page, PageRequest
 from app.schemas.blog import BlogPostCreate, BlogPostUpdate
 from app.services._helpers import mark_archived, mark_published, require_publishable, resolve_slug
@@ -53,6 +53,11 @@ class BlogService:
     async def list_posts(self) -> list[BlogPost]:
         return await self.repo.list(order_by=(BlogPost.created_at.desc(),))
 
+    async def search(
+        self, *, filters: BlogFilters | None = None, pagination: PageRequest | None = None
+    ) -> Page[BlogPost]:
+        return await self.repo.search(filters=filters, pagination=pagination)
+
     # --- writes -------------------------------------------------------------
     async def create_post(self, data: BlogPostCreate) -> BlogPost:
         slug = await resolve_slug(self.repo, data.slug, data.title)
@@ -90,11 +95,38 @@ class BlogService:
         await self.session.commit()
         return await self.get_post(post.id)
 
+    async def unpublish_post(self, post_id: uuid.UUID) -> BlogPost:
+        post = await self.get_post(post_id)
+        post.status = ContentStatus.DRAFT
+        await self.session.commit()
+        return await self.get_post(post.id)
+
     async def archive_post(self, post_id: uuid.UUID) -> BlogPost:
         post = await self.get_post(post_id)
         mark_archived(post)
         await self.session.commit()
         return await self.get_post(post.id)
+
+    async def duplicate_post(self, post_id: uuid.UUID) -> BlogPost:
+        source = await self.get_post(post_id)
+        new_title = f"{source.title} (Copy)"
+        new_slug = await resolve_slug(self.repo, None, new_title)
+        copy = BlogPost(
+            title=new_title,
+            slug=new_slug,
+            excerpt=source.excerpt,
+            content=source.content,
+            cover_image_id=source.cover_image_id,
+            category=source.category,
+            featured=False,
+            seo_title=source.seo_title,
+            seo_description=source.seo_description,
+            status=ContentStatus.DRAFT,
+        )
+        copy.tags = list(source.tags)
+        self.session.add(copy)
+        await self.session.commit()
+        return await self.get_post(copy.id)
 
     async def delete_post(self, post_id: uuid.UUID) -> None:
         post = await self.get_post(post_id)

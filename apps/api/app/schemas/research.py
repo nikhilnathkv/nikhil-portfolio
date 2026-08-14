@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from app.models.enums import ContentStatus
 from app.schemas.base import TimestampedResponse
 from app.schemas.common import HttpUrlStr, Slug
+from app.schemas.project import ProjectRef
 
 
 class ResearchBase(BaseModel):
@@ -19,6 +20,7 @@ class ResearchBase(BaseModel):
     paper_url: HttpUrlStr | None = Field(default=None, max_length=512)
     publication_url: HttpUrlStr | None = Field(default=None, max_length=512)
     github_url: HttpUrlStr | None = Field(default=None, max_length=512)
+    project_id: uuid.UUID | None = None
 
 
 class ResearchCreate(ResearchBase):
@@ -36,6 +38,7 @@ class ResearchUpdate(BaseModel):
     paper_url: HttpUrlStr | None = Field(default=None, max_length=512)
     publication_url: HttpUrlStr | None = Field(default=None, max_length=512)
     github_url: HttpUrlStr | None = Field(default=None, max_length=512)
+    project_id: uuid.UUID | None = None
     status: ContentStatus | None = None
 
 
@@ -50,6 +53,8 @@ class ResearchResponse(TimestampedResponse):
     paper_url: str | None = None
     publication_url: str | None = None
     github_url: str | None = None
+    project_id: uuid.UUID | None = None
+    project: ProjectRef | None = None
     status: ContentStatus
     published_at: datetime | None = None
 
@@ -59,5 +64,7 @@ class ResearchListResponse(TimestampedResponse):
     title: str
     slug: str
     abstract: str | None = None
+    project_id: uuid.UUID | None = None
+    project: ProjectRef | None = None
     status: ContentStatus
     published_at: datetime | None = None

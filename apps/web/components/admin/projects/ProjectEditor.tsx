@@ -5,9 +5,10 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { MetricEditor } from '@/components/admin/projects/MetricEditor';
 import { SkillSelector } from '@/components/admin/projects/SkillSelector';
+import { PublishingActions } from '@/components/cms/PublishingActions';
+import { SeoEditor } from '@/components/cms/SeoEditor';
 import { ConfirmDialog } from '@/components/admin/ui/ConfirmDialog';
 import { Field, inputClass, Section } from '@/components/admin/ui/form';
-import { StatusBadge } from '@/components/admin/ui/StatusBadge';
 import { ToastViewport, useToasts } from '@/components/admin/ui/Toast';
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges';
 import { AdminApiError, adminFetch } from '@/lib/admin/client-api';
@@ -164,6 +165,8 @@ export function ProjectEditor({ initial }: { initial?: Project }) {
   const [now, setNow] = useState(() => Date.now());
   const [saveError, setSaveError] = useState<string | null>(null);
   const [publishOpen, setPublishOpen] = useState(false);
+  const [archiveOpen, setArchiveOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [slugConfirmOpen, setSlugConfirmOpen] = useState(false);
 
   const { toasts, push, dismiss } = useToasts();
@@ -277,6 +280,33 @@ export function ProjectEditor({ initial }: { initial?: Project }) {
     }
   };
 
+  const transition = async (action: 'unpublish' | 'archive') => {
+    if (!projectId) return;
+    try {
+      const updated = await adminFetch<Project>(`/projects/${projectId}/${action}`, {
+        method: 'POST',
+      });
+      setStatusValue(updated.status);
+      const nextForm = fromProject(updated);
+      setForm(nextForm);
+      setSavedSnapshot(JSON.stringify(nextForm));
+      push(action === 'archive' ? 'Project archived.' : 'Project unpublished.', 'success');
+    } catch (e) {
+      push(e instanceof AdminApiError ? e.body.message : 'Action failed.', 'error');
+    }
+  };
+
+  const onDelete = async () => {
+    if (!projectId) return;
+    try {
+      await adminFetch(`/projects/${projectId}`, { method: 'DELETE' });
+      router.push('/admin/projects');
+    } catch (e) {
+      push(e instanceof AdminApiError ? e.body.message : 'Delete failed.', 'error');
+      setDeleteOpen(false);
+    }
+  };
+
   const savedAgoLabel = () => {
     if (saving) return 'Saving…';
     if (lastSavedAt === null) return null;
@@ -288,48 +318,24 @@ export function ProjectEditor({ initial }: { initial?: Project }) {
   };
 
   const shortLen = form.short_description.length;
+  const canSave = Boolean(form.title.trim() && form.short_description.trim());
 
   return (
     <div className="pb-24">
-      {/* Sticky action bar */}
-      <div className="sticky top-0 z-30 -mx-4 mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-gray-50/90 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
-        <div className="flex items-center gap-3">
-          <h1 className="text-lg font-semibold text-gray-900">
-            {isEdit ? form.title || 'Untitled project' : 'New Project'}
-          </h1>
-          <StatusBadge status={statusValue} />
-          {isDirty ? <span className="text-xs font-medium text-amber-600">Unsaved</span> : null}
-        </div>
-        <div className="flex items-center gap-2">
-          {savedAgoLabel() ? (
-            <span className="mr-1 text-xs text-gray-400">{savedAgoLabel()}</span>
-          ) : null}
-          <button
-            type="button"
-            onClick={onPreview}
-            disabled={saving}
-            className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
-          >
-            Preview
-          </button>
-          <button
-            type="button"
-            onClick={onSaveDraft}
-            disabled={saving || !form.title.trim() || !form.short_description.trim()}
-            className="rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100 disabled:opacity-50"
-          >
-            Save Draft
-          </button>
-          <button
-            type="button"
-            onClick={() => setPublishOpen(true)}
-            disabled={saving}
-            className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-50"
-          >
-            Publish
-          </button>
-        </div>
-      </div>
+      <PublishingActions
+        title={isEdit ? form.title || 'Untitled project' : 'New Project'}
+        status={statusValue}
+        isDirty={isDirty}
+        saving={saving}
+        canSave={canSave}
+        savedLabel={savedAgoLabel()}
+        onSave={onSaveDraft}
+        onPreview={onPreview}
+        onPublish={() => setPublishOpen(true)}
+        onUnpublish={() => void transition('unpublish')}
+        onArchive={() => setArchiveOpen(true)}
+        onDelete={() => setDeleteOpen(true)}
+      />
 
       {saveError ? (
         <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
@@ -558,37 +564,16 @@ export function ProjectEditor({ initial }: { initial?: Project }) {
           </Section>
 
           <Section id="seo" title="⑧ SEO">
-            <Field label="SEO title">
-              <input
-                className={inputClass}
-                value={form.seo_title}
-                onChange={(e) => set('seo_title', e.target.value)}
-              />
-            </Field>
-            <Field label="SEO description">
-              <textarea
-                className={inputClass}
-                rows={2}
-                value={form.seo_description}
-                onChange={(e) => set('seo_description', e.target.value)}
-              />
-            </Field>
-            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
-                Google search preview
-              </p>
-              <p className="text-base text-[#1a0dab]">
-                {form.seo_title || form.title || 'Project title'}
-              </p>
-              <p className="text-sm text-[#006621]">
-                nikhilnath.dev/projects/{form.slug || 'project-slug'}
-              </p>
-              <p className="text-sm text-gray-600">
-                {form.seo_description ||
-                  form.short_description ||
-                  'A short description of the project.'}
-              </p>
-            </div>
+            <SeoEditor
+              seoTitle={form.seo_title}
+              seoDescription={form.seo_description}
+              slug={form.slug}
+              titleFallback={form.title}
+              descriptionFallback={form.short_description}
+              pathPrefix="projects"
+              onChangeTitle={(v) => set('seo_title', v)}
+              onChangeDescription={(v) => set('seo_description', v)}
+            />
           </Section>
         </div>
       </div>
@@ -604,6 +589,34 @@ export function ProjectEditor({ initial }: { initial?: Project }) {
         <p>
           This will make the project publicly visible at{' '}
           <span className="font-mono text-gray-800">/projects/{form.slug || slug}</span>.
+        </p>
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        open={archiveOpen}
+        title="Archive this project?"
+        confirmLabel="Archive"
+        destructive
+        onCancel={() => setArchiveOpen(false)}
+        onConfirm={() => {
+          setArchiveOpen(false);
+          void transition('archive');
+        }}
+      >
+        <p>It will no longer appear publicly, but is not deleted.</p>
+      </ConfirmDialog>
+
+      <ConfirmDialog
+        open={deleteOpen}
+        title="Delete this project permanently?"
+        confirmLabel="Delete"
+        destructive
+        requireTyped="DELETE"
+        onCancel={() => setDeleteOpen(false)}
+        onConfirm={() => void onDelete()}
+      >
+        <p>
+          This permanently deletes <strong>{form.title}</strong>. This cannot be undone.
         </p>
       </ConfirmDialog>
 

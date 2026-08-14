@@ -8,7 +8,7 @@ from app.models.blog import BlogPost, BlogTag, blog_post_tags
 from app.models.contact_message import ContactMessage
 from app.models.enums import ContactStatus, ContentStatus, UserRole
 from app.models.experience import Experience, experience_projects
-from app.models.experiment import Experiment
+from app.models.experiment import Experiment, ExperimentMetric
 from app.models.media import Media
 from app.models.profile import Profile
 from app.models.project import Project, ProjectMetric, project_skills
@@ -30,6 +30,7 @@ __all__ = [
     "Experience",
     "experience_projects",
     "Experiment",
+    "ExperimentMetric",
     "Media",
     "Profile",
     "Project",

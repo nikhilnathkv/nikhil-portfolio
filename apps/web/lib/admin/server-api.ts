@@ -2,9 +2,23 @@ import 'server-only';
 
 import { cookies } from 'next/headers';
 
+import type { BlogPost } from '@/lib/admin/blog-types';
 import type { Experience } from '@/lib/admin/experience-types';
+import type { Experiment } from '@/lib/admin/experiment-types';
 import type { Project } from '@/lib/admin/project-types';
 import type { Profile } from '@/lib/admin/profile-types';
+import type { Research } from '@/lib/admin/research-types';
+
+/** Generic admin GET by id/slug that unwraps the envelope; null on any failure. */
+async function fetchAdmin<T>(path: string): Promise<T | null> {
+  try {
+    const res = await serverFetch(path);
+    if (!res.ok) return null;
+    return ((await res.json()) as { data: T }).data;
+  } catch {
+    return null;
+  }
+}
 import type { DashboardSummary, User } from '@/lib/admin/types';
 
 /** API base for server-side calls (Next server → FastAPI). */
@@ -72,6 +86,19 @@ export async function getAdminExperience(id: string): Promise<Experience | null>
     return null;
   }
 }
+
+export const getAdminPost = (id: string) => fetchAdmin<BlogPost>(`/admin/blog/${id}`);
+export const getAdminPostBySlug = (slug: string) =>
+  fetchAdmin<BlogPost>(`/admin/blog/by-slug/${slug}`);
+
+export const getAdminResearch = (id: string) => fetchAdmin<Research>(`/admin/research/${id}`);
+export const getAdminResearchBySlug = (slug: string) =>
+  fetchAdmin<Research>(`/admin/research/by-slug/${slug}`);
+
+export const getAdminExperiment = (id: string) =>
+  fetchAdmin<Experiment>(`/admin/experiments/${id}`);
+export const getAdminExperimentBySlug = (slug: string) =>
+  fetchAdmin<Experiment>(`/admin/experiments/by-slug/${slug}`);
 
 /** The singleton profile, or null when it hasn't been configured yet (404). */
 export async function getAdminProfile(): Promise<Profile | null> {

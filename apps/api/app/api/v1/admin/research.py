@@ -2,10 +2,13 @@
 
 import uuid
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 
-from app.api.deps import get_research_service
-from app.schemas.common import SuccessResponse, success
+from app.api.deps import get_research_service, pagination_params
+from app.models.enums import ContentStatus
+from app.repositories.pagination import PageRequest
+from app.repositories.research import ResearchFilters
+from app.schemas.common import SuccessResponse, paginated, success
 from app.schemas.research import (
     ResearchCreate,
     ResearchListResponse,
@@ -21,10 +24,35 @@ router = APIRouter(prefix="/research", tags=["Admin: Research"])
     "", response_model=SuccessResponse[list[ResearchListResponse]], summary="List all research"
 )
 async def list_research(
+    q: str | None = Query(default=None),
+    status_filter: ContentStatus | None = Query(default=None, alias="status"),
+    project: uuid.UUID | None = Query(default=None),
+    pagination: PageRequest = Depends(pagination_params),
     service: ResearchService = Depends(get_research_service),
 ) -> SuccessResponse[list[ResearchListResponse]]:
-    items = await service.list(published_only=False)
-    return success([ResearchListResponse.model_validate(i) for i in items])
+    page = await service.search(
+        filters=ResearchFilters(status=status_filter, project_id=project, search=q),
+        pagination=pagination,
+    )
+    return paginated(
+        [ResearchListResponse.model_validate(i) for i in page.items],
+        page=page.page,
+        page_size=page.page_size,
+        total=page.total,
+    )
+
+
+@router.get(
+    "/by-slug/{slug}",
+    response_model=SuccessResponse[ResearchResponse],
+    summary="Get research by slug (any status) — used by the admin preview",
+)
+async def get_research_by_slug(
+    slug: str, service: ResearchService = Depends(get_research_service)
+) -> SuccessResponse[ResearchResponse]:
+    return success(
+        ResearchResponse.model_validate(await service.get_by_slug(slug, published_only=False))
+    )
 
 
 @router.post(
@@ -78,9 +106,32 @@ async def publish_research(
 
 
 @router.post(
+    "/{research_id}/unpublish",
+    response_model=SuccessResponse[ResearchResponse],
+    summary="Unpublish",
+)
+async def unpublish_research(
+    research_id: uuid.UUID, service: ResearchService = Depends(get_research_service)
+) -> SuccessResponse[ResearchResponse]:
+    return success(ResearchResponse.model_validate(await service.unpublish_research(research_id)))
+
+
+@router.post(
     "/{research_id}/archive", response_model=SuccessResponse[ResearchResponse], summary="Archive"
 )
 async def archive_research(
     research_id: uuid.UUID, service: ResearchService = Depends(get_research_service)
 ) -> SuccessResponse[ResearchResponse]:
     return success(ResearchResponse.model_validate(await service.archive_research(research_id)))
+
+
+@router.post(
+    "/{research_id}/duplicate",
+    response_model=SuccessResponse[ResearchResponse],
+    status_code=status.HTTP_201_CREATED,
+    summary="Duplicate research as a new draft",
+)
+async def duplicate_research(
+    research_id: uuid.UUID, service: ResearchService = Depends(get_research_service)
+) -> SuccessResponse[ResearchResponse]:
+    return success(ResearchResponse.model_validate(await service.duplicate_research(research_id)))
