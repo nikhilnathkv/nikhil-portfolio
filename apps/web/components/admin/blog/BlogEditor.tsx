@@ -300,7 +300,7 @@ export function BlogEditor({ initial }: { initial?: BlogPost }) {
       >
         <p>
           Publicly visible at{' '}
-          <span className="font-mono text-gray-800">/blog/{form.slug || slug}</span>.
+          <span className="font-mono text-gray-800">/writing/{form.slug || slug}</span>.
         </p>
       </ConfirmDialog>
 

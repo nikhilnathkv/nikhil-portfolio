@@ -46,7 +46,7 @@ export function BlogListClient() {
       basePath="/blog"
       adminBase="/admin/blog"
       previewBase="/preview/blog"
-      publicBase="/blog"
+      publicBase="/writing"
       columns={columns}
       searchPlaceholder="Search articles…"
       newHref="/admin/blog/new"

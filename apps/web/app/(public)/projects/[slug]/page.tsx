@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { ProjectView } from '@/components/projects/ProjectView';
+import { Container } from '@/components/public';
 import { getPublishedProject } from '@/services/projects';
 
 export async function generateMetadata({
@@ -24,8 +25,8 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
   if (!project) notFound();
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-16">
+    <Container className="py-16">
       <ProjectView project={project} />
-    </main>
+    </Container>
   );
 }

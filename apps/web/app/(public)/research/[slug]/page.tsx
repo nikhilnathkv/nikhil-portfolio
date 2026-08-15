@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { ResearchView } from '@/components/content/ResearchView';
+import { Container } from '@/components/public';
 import { getPublishedResearch } from '@/services/research';
 
 export async function generateMetadata({
@@ -24,8 +25,8 @@ export default async function PublicResearchPage({
   const research = await getPublishedResearch(slug);
   if (!research) notFound();
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-16">
+    <Container size="prose" className="py-16">
       <ResearchView research={research} />
-    </main>
+    </Container>
   );
 }

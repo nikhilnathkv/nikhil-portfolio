@@ -70,7 +70,7 @@ describe('BlogEditor', () => {
     render(<BlogEditor initial={post} />);
     await user.click(screen.getByRole('button', { name: 'Publish' }));
     const dialog = screen.getByRole('dialog');
-    expect(dialog).toHaveTextContent('/blog/rag-eval');
+    expect(dialog).toHaveTextContent('/writing/rag-eval');
     await user.click(within(dialog).getByRole('button', { name: 'Publish' }));
     await waitFor(() =>
       expect(fetchMock).toHaveBeenCalledWith(

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { ExperimentView } from '@/components/content/ExperimentView';
+import { Container } from '@/components/public';
 import { getPublishedExperiment } from '@/services/experiments';
 
 export async function generateMetadata({
@@ -24,8 +25,8 @@ export default async function PublicExperimentPage({
   const experiment = await getPublishedExperiment(slug);
   if (!experiment) notFound();
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-16">
+    <Container size="prose" className="py-16">
       <ExperimentView experiment={experiment} />
-    </main>
+    </Container>
   );
 }

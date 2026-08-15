@@ -260,3 +260,6 @@ Thumbs.db
 # Editor
 .idea/
 .vscode/
+
+# Claude Code local settings (per-user)
+.claude/settings.local.json

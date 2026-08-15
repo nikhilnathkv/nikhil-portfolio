@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { ArticleView } from '@/components/content/ArticleView';
+import { Container } from '@/components/public';
 import { getPublishedPost } from '@/services/blog';
 
 export async function generateMetadata({
@@ -23,8 +24,8 @@ export default async function PublicBlogPage({ params }: { params: Promise<{ slu
   const post = await getPublishedPost(slug);
   if (!post) notFound();
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-16">
+    <Container size="prose" className="py-16">
       <ArticleView post={post} />
-    </main>
+    </Container>
   );
 }

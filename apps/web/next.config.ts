@@ -42,11 +42,30 @@ const securityHeaders = [
     : []),
 ];
 
+const mediaUrl = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_MEDIA_URL ?? 'http://localhost:9000');
+  } catch {
+    return new URL('http://localhost:9000');
+  }
+})();
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   // Compile the shared workspace packages (shipped as TypeScript source) as
   // part of the web build instead of expecting a pre-built dist bundle.
   transpilePackages: ['@nikhil-portfolio/types', '@nikhil-portfolio/ui'],
+  // Allow next/image to optimize uploaded media served from the MinIO origin
+  // (CDN in prod). The same origin is whitelisted in the CSP img-src above.
+  images: {
+    remotePatterns: [
+      {
+        protocol: mediaUrl.protocol.replace(':', '') as 'http' | 'https',
+        hostname: mediaUrl.hostname,
+        port: mediaUrl.port || undefined,
+      },
+    ],
+  },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },

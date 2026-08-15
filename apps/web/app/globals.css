@@ -10,6 +10,26 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /*
+   * Public site design tokens (M4.1). Namespaced `pub-*` so Tailwind generates
+   * utilities like `bg-pub-surface` / `text-pub-muted` / `border-pub-border`
+   * WITHOUT colliding with the admin theme above. The values live on the
+   * `.public-theme` root (see below) and only apply inside the public layout,
+   * so the admin CMS keeps its light theme untouched.
+   */
+  --color-pub-bg: var(--pub-bg);
+  --color-pub-surface: var(--pub-surface);
+  --color-pub-surface-2: var(--pub-surface-2);
+  --color-pub-border: var(--pub-border);
+  --color-pub-border-strong: var(--pub-border-strong);
+  --color-pub-fg: var(--pub-fg);
+  --color-pub-muted: var(--pub-fg-muted);
+  --color-pub-subtle: var(--pub-fg-subtle);
+  --color-pub-accent: var(--pub-accent);
+  --color-pub-accent-hover: var(--pub-accent-hover);
+  --color-pub-accent-contrast: var(--pub-accent-contrast);
+  --color-pub-accent-soft: var(--pub-accent-soft);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,6 +43,79 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/*
+ * ─────────────────────────────────────────────────────────────────────────
+ * Public site theme (M4.1) — "technical dark", committed single theme.
+ * Applied via the `.public-theme` wrapper in app/(public)/layout.tsx only.
+ * Locally overrides --background/--foreground so the shared `.prose-cms`
+ * rules (which key off --foreground) render correctly on dark, and defines
+ * the `--pub-*` palette consumed by the `pub-*` Tailwind utilities.
+ * ─────────────────────────────────────────────────────────────────────────
+ */
+.public-theme {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --pub-bg: #0a0b0d;
+  --pub-surface: #101216;
+  --pub-surface-2: #171a1f;
+  --pub-border: #23272e;
+  --pub-border-strong: #333842;
+
+  /* Foreground (AA-verified on --pub-bg) */
+  --pub-fg: #e9ebee;
+  --pub-fg-muted: #9aa1ab;
+  --pub-fg-subtle: #6a7078;
+
+  /* Single restrained cool accent */
+  --pub-accent: #4cc2ff;
+  --pub-accent-hover: #7ad1ff;
+  --pub-accent-contrast: #061620;
+  --pub-accent-soft: color-mix(in srgb, var(--pub-accent) 14%, transparent);
+
+  /* Motion */
+  --pub-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --pub-duration: 180ms;
+
+  /* Re-point the shared vars so `.prose-cms` + descendants read dark values */
+  --background: var(--pub-bg);
+  --foreground: var(--pub-fg);
+
+  background: var(--pub-bg);
+  color: var(--pub-fg);
+}
+
+/* Visible, consistent keyboard focus across the public site. */
+.public-theme :focus-visible {
+  outline: 2px solid var(--pub-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Dark-mode fixups for the shared Markdown renderer (light-only hardcodes). */
+.public-theme .prose-cms a {
+  color: var(--pub-accent);
+}
+.public-theme .prose-cms pre {
+  background: var(--pub-surface);
+  border: 1px solid var(--pub-border);
+}
+.public-theme .prose-cms img {
+  border: 1px solid var(--pub-border);
+}
+
+/* Respect reduced-motion everywhere on the public site. */
+@media (prefers-reduced-motion: reduce) {
+  .public-theme *,
+  .public-theme *::before,
+  .public-theme *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Minimal typographic styling for rendered Markdown (no typography plugin). */
