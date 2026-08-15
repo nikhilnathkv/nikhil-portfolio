@@ -150,6 +150,23 @@ export function CaseStudyView({ project }: { project: Project }) {
               ))}
             </div>
           ) : null}
+          {project.experience.length > 0 ? (
+            <p className="text-sm text-pub-muted">
+              Built at{' '}
+              {project.experience.map((x, i) => (
+                <span key={x.id}>
+                  {i > 0 ? ', ' : ''}
+                  <Link
+                    href={`/experience#exp-${x.id}`}
+                    className="text-pub-fg underline decoration-pub-border underline-offset-4 transition-colors [transition-duration:var(--pub-duration)] hover:decoration-pub-accent"
+                  >
+                    {x.company}
+                  </Link>
+                </span>
+              ))}{' '}
+              →
+            </p>
+          ) : null}
           {project.is_confidential ? (
             <p className="rounded-xl border border-pub-border bg-pub-surface px-4 py-3 text-sm text-pub-muted">
               🔒 Client details and proprietary implementation have been omitted for

@@ -54,7 +54,8 @@ class ExperienceResponse(TimestampedResponse):
 
 
 class ExperienceListResponse(TimestampedResponse):
-    """Lighter shape for list endpoints (omits the long description)."""
+    """List shape. Includes the Markdown ``description`` and linked projects so
+    the public timeline can render each role fully in a single request."""
 
     id: uuid.UUID
     company: str
@@ -64,4 +65,6 @@ class ExperienceListResponse(TimestampedResponse):
     end_date: date | None = None
     is_current: bool
     summary: str | None = None
+    description: str | None = None
     display_order: int
+    projects: list[ProjectRef] = []

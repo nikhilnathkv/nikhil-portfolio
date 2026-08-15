@@ -118,3 +118,38 @@ async def test_skill_usage_empty_when_unused(admin_client: AsyncClient) -> None:
     ).json()["data"]
     usage = (await admin_client.get(f"{ADMIN_SKILLS}/{skill['id']}/projects")).json()["data"]
     assert usage == []
+
+
+# --- M4.4: public timeline + case-study backlink ---------------------------
+async def test_public_experience_list_includes_projects_and_description(
+    admin_client: AsyncClient,
+) -> None:
+    """The public timeline renders each role fully from the list endpoint."""
+    proj = await _make_project(admin_client, "Timeline Project")
+    await admin_client.post(
+        ADMIN_EXP,
+        json=_exp(
+            company="EY",
+            description="- Built X\n- Designed Y",
+            project_ids=[proj["id"]],
+        ),
+    )
+    items = (await admin_client.get("/api/v1/experience")).json()["data"]
+    ey = next(i for i in items if i["company"] == "EY")
+    assert ey["description"] == "- Built X\n- Designed Y"
+    assert [p["title"] for p in ey["projects"]] == ["Timeline Project"]
+
+
+async def test_project_detail_includes_experience_backlink(admin_client: AsyncClient) -> None:
+    """A published project exposes the role(s) it was built in ('Built at …')."""
+    proj = await _make_project(admin_client, "Backlink Project")
+    await admin_client.put(
+        f"{ADMIN_PROJECTS}/{proj['id']}", json={"description": "full"}
+    )
+    await admin_client.post(ADMIN_EXP, json=_exp(company="EY", project_ids=[proj["id"]]))
+    await admin_client.post(f"{ADMIN_PROJECTS}/{proj['id']}/publish")
+
+    detail = (await admin_client.get(f"/api/v1/projects/{proj['slug']}")).json()["data"]
+    assert [(x["company"], x["role"]) for x in detail["experience"]] == [
+        ("EY", "AI/ML Engineer")
+    ]

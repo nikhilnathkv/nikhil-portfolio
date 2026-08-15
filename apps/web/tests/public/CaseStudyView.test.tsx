@@ -37,6 +37,7 @@ function project(overrides: Partial<Project> = {}): Project {
     skills: [{ id: 's1', category_id: 'c1', name: 'RAG', display_order: 0, featured: true }],
     related_research: [],
     related_experiments: [],
+    experience: [],
     ...overrides,
   };
 }
@@ -71,6 +72,15 @@ describe('CaseStudyView', () => {
       'href',
       'https://github.com/x/y',
     );
+  });
+
+  it('renders a "Built at" backlink to the linked role', () => {
+    render(
+      <CaseStudyView
+        project={project({ experience: [{ id: 'e9', company: 'EY', role: 'Senior Associate' }] })}
+      />,
+    );
+    expect(screen.getByRole('link', { name: 'EY' })).toHaveAttribute('href', '/experience#exp-e9');
   });
 
   it('renders related research and experiments as links', () => {

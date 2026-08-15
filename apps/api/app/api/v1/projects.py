@@ -11,6 +11,7 @@ from enum import StrEnum
 from fastapi import APIRouter, Depends, Query, status
 
 from app.api.deps import (
+    get_experience_service,
     get_experiment_service,
     get_project_service,
     get_research_service,
@@ -20,11 +21,13 @@ from app.repositories.pagination import PageRequest
 from app.schemas.common import SuccessResponse, paginated, success
 from app.schemas.project import (
     ContentRef,
+    ExperienceRef,
     ProjectCreate,
     ProjectListResponse,
     ProjectResponse,
     ProjectUpdate,
 )
+from app.services.experience import ExperienceService
 from app.services.experiment import ExperimentService
 from app.services.project import ProjectService
 from app.services.research import ResearchService
@@ -80,15 +83,19 @@ async def get_project(
     service: ProjectService = Depends(get_project_service),
     research: ResearchService = Depends(get_research_service),
     experiments: ExperimentService = Depends(get_experiment_service),
+    experience: ExperienceService = Depends(get_experience_service),
 ) -> SuccessResponse[ProjectResponse]:
     project = await service.get_by_slug(slug)
     # Related content graph: only published research/experiments linked to this
-    # project (drafts never leak into the public case study).
+    # project (drafts never leak into the public case study), plus the role(s)
+    # the project was built in for the "Built at …" backlink.
     related_research = await research.list(project_id=project.id)
     related_experiments = await experiments.list(project_id=project.id)
+    roles = await experience.list_for_project(project.id)
     response = ProjectResponse.model_validate(project)
     response.related_research = [ContentRef.model_validate(r) for r in related_research]
     response.related_experiments = [ContentRef.model_validate(e) for e in related_experiments]
+    response.experience = [ExperienceRef.model_validate(x) for x in roles]
     return success(response)
 
 

@@ -71,6 +71,7 @@ export interface Project {
   skills: Skill[];
   related_research: ContentRef[];
   related_experiments: ContentRef[];
+  experience: ExperienceRef[];
 }
 
 /** Light reference to related content on a project (research / experiments). */
@@ -78,6 +79,13 @@ export interface ContentRef {
   id: string;
   title: string;
   slug: string;
+}
+
+/** Light reference to a role the project was built in ('Built at …'). */
+export interface ExperienceRef {
+  id: string;
+  company: string;
+  role: string;
 }
 
 /** Payload accepted by create/update (subset the editor controls). */

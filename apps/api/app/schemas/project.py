@@ -57,6 +57,16 @@ class ContentRef(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ExperienceRef(BaseModel):
+    """Light experience reference for the 'Built at …' case-study backlink."""
+
+    id: uuid.UUID
+    company: str
+    role: str
+
+    model_config = {"from_attributes": True}
+
+
 class ProjectBase(BaseModel):
     title: str = Field(min_length=1, max_length=255)
     short_description: str = Field(min_length=1, max_length=500)
@@ -149,6 +159,7 @@ class ProjectResponse(TimestampedResponse):
     skills: list[SkillResponse] = []
     related_research: list[ContentRef] = []
     related_experiments: list[ContentRef] = []
+    experience: list[ExperienceRef] = []
 
 
 class ProjectListResponse(TimestampedResponse):

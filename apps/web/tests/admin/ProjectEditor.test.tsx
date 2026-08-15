@@ -42,6 +42,7 @@ const created: Project = {
   skills: [],
   related_research: [],
   related_experiments: [],
+  experience: [],
 };
 
 let fetchMock: ReturnType<typeof vi.fn>;

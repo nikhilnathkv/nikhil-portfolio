@@ -28,6 +28,9 @@ class ExperienceService:
     async def list_experience(self) -> list[Experience]:
         return await self.repo.list_ordered()
 
+    async def list_for_project(self, project_id: uuid.UUID) -> list[Experience]:
+        return await self.repo.list_by_project(project_id)
+
     async def get_current_experience(self) -> list[Experience]:
         return await self.repo.get_current()
 
