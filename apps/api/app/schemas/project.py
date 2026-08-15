@@ -47,6 +47,16 @@ class ProjectRef(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class ContentRef(BaseModel):
+    """Light reference to related content (research / experiments) on a project."""
+
+    id: uuid.UUID
+    title: str
+    slug: str
+
+    model_config = {"from_attributes": True}
+
+
 class ProjectBase(BaseModel):
     title: str = Field(min_length=1, max_length=255)
     short_description: str = Field(min_length=1, max_length=500)
@@ -55,10 +65,13 @@ class ProjectBase(BaseModel):
     solution: str | None = None
     architecture: str | None = None
     engineering_decisions: str | None = None
+    evaluation: str | None = None
+    results: str | None = None
     challenges: str | None = None
     lessons_learned: str | None = None
     category: str | None = Field(default=None, max_length=100)
     featured: bool = False
+    is_confidential: bool = False
     display_order: int = 0
     github_url: HttpUrlStr | None = Field(default=None, max_length=512)
     live_url: HttpUrlStr | None = Field(default=None, max_length=512)
@@ -86,11 +99,14 @@ class ProjectUpdate(BaseModel):
     solution: str | None = None
     architecture: str | None = None
     engineering_decisions: str | None = None
+    evaluation: str | None = None
+    results: str | None = None
     challenges: str | None = None
     lessons_learned: str | None = None
     category: str | None = Field(default=None, max_length=100)
     status: ContentStatus | None = None
     featured: bool | None = None
+    is_confidential: bool | None = None
     display_order: int | None = None
     github_url: HttpUrlStr | None = Field(default=None, max_length=512)
     live_url: HttpUrlStr | None = Field(default=None, max_length=512)
@@ -113,11 +129,14 @@ class ProjectResponse(TimestampedResponse):
     solution: str | None = None
     architecture: str | None = None
     engineering_decisions: str | None = None
+    evaluation: str | None = None
+    results: str | None = None
     challenges: str | None = None
     lessons_learned: str | None = None
     category: str | None = None
     status: ContentStatus
     featured: bool
+    is_confidential: bool = False
     display_order: int
     github_url: str | None = None
     live_url: str | None = None
@@ -128,6 +147,8 @@ class ProjectResponse(TimestampedResponse):
     published_at: datetime | None = None
     metrics: list[ProjectMetricResponse] = []
     skills: list[SkillResponse] = []
+    related_research: list[ContentRef] = []
+    related_experiments: list[ContentRef] = []
 
 
 class ProjectListResponse(TimestampedResponse):
@@ -140,6 +161,7 @@ class ProjectListResponse(TimestampedResponse):
     category: str | None = None
     status: ContentStatus
     featured: bool
+    is_confidential: bool = False
     display_order: int
     published_at: datetime | None = None
     hero_image_url: str | None = None

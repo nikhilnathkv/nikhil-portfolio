@@ -3,11 +3,16 @@ import type { Project, ProjectListItem } from '@/lib/admin/project-types';
 
 /** List published projects from the public API. Returns `[]` on error. */
 export async function listProjects(
-  opts: { featured?: boolean } = {},
+  opts: { featured?: boolean; category?: string } = {},
 ): Promise<ProjectListItem[]> {
-  const query = opts.featured ? '?featured=true' : '';
+  const params = new URLSearchParams();
+  if (opts.featured) params.set('featured', 'true');
+  if (opts.category) params.set('category', opts.category);
+  const query = params.toString();
   try {
-    return await apiFetch<ProjectListItem[]>(`/projects${query}`, { cache: 'no-store' });
+    return await apiFetch<ProjectListItem[]>(`/projects${query ? `?${query}` : ''}`, {
+      cache: 'no-store',
+    });
   } catch {
     return [];
   }

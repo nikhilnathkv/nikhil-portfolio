@@ -53,6 +53,8 @@ class Project(UUIDPKMixin, TimestampMixin, SoftDeleteMixin, Base):
     solution: Mapped[str | None] = mapped_column(Text, nullable=True)
     architecture: Mapped[str | None] = mapped_column(Text, nullable=True)
     engineering_decisions: Mapped[str | None] = mapped_column(Text, nullable=True)
+    evaluation: Mapped[str | None] = mapped_column(Text, nullable=True)
+    results: Mapped[str | None] = mapped_column(Text, nullable=True)
     challenges: Mapped[str | None] = mapped_column(Text, nullable=True)
     lessons_learned: Mapped[str | None] = mapped_column(Text, nullable=True)
 
@@ -68,6 +70,9 @@ class Project(UUIDPKMixin, TimestampMixin, SoftDeleteMixin, Base):
         index=True,
     )
     featured: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, index=True)
+    # Client/enterprise work that can be shown, but with proprietary details
+    # omitted; the public renderer surfaces a confidentiality note.
+    is_confidential: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     display_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     github_url: Mapped[str | None] = mapped_column(String(512), nullable=True)

@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { ProjectView } from '@/components/projects/ProjectView';
-import { Container } from '@/components/public';
+import { CaseStudyView } from '@/components/projects/CaseStudyView';
 import { getPublishedProject } from '@/services/projects';
 
 export async function generateMetadata({
@@ -13,9 +12,20 @@ export async function generateMetadata({
   const { slug } = await params;
   const project = await getPublishedProject(slug);
   if (!project) return { title: 'Project not found' };
+  const title = project.seo_title ?? project.title;
+  const description = project.seo_description ?? project.short_description;
+  const path = `/projects/${project.slug}`;
   return {
-    title: project.seo_title ?? project.title,
-    description: project.seo_description ?? project.short_description,
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      type: 'article',
+      title,
+      description,
+      url: path,
+      ...(project.hero_image_url ? { images: [{ url: project.hero_image_url }] } : {}),
+    },
   };
 }
 
@@ -24,9 +34,5 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
   const project = await getPublishedProject(slug);
   if (!project) notFound();
 
-  return (
-    <Container className="py-16">
-      <ProjectView project={project} />
-    </Container>
-  );
+  return <CaseStudyView project={project} />;
 }

@@ -10,16 +10,24 @@ from enum import StrEnum
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.deps import get_project_service, pagination_params
+from app.api.deps import (
+    get_experiment_service,
+    get_project_service,
+    get_research_service,
+    pagination_params,
+)
 from app.repositories.pagination import PageRequest
 from app.schemas.common import SuccessResponse, paginated, success
 from app.schemas.project import (
+    ContentRef,
     ProjectCreate,
     ProjectListResponse,
     ProjectResponse,
     ProjectUpdate,
 )
+from app.services.experiment import ExperimentService
 from app.services.project import ProjectService
+from app.services.research import ResearchService
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
 
@@ -68,10 +76,20 @@ async def list_projects(
     summary="Get a published project by slug",
 )
 async def get_project(
-    slug: str, service: ProjectService = Depends(get_project_service)
+    slug: str,
+    service: ProjectService = Depends(get_project_service),
+    research: ResearchService = Depends(get_research_service),
+    experiments: ExperimentService = Depends(get_experiment_service),
 ) -> SuccessResponse[ProjectResponse]:
     project = await service.get_by_slug(slug)
-    return success(ProjectResponse.model_validate(project))
+    # Related content graph: only published research/experiments linked to this
+    # project (drafts never leak into the public case study).
+    related_research = await research.list(project_id=project.id)
+    related_experiments = await experiments.list(project_id=project.id)
+    response = ProjectResponse.model_validate(project)
+    response.related_research = [ContentRef.model_validate(r) for r in related_research]
+    response.related_experiments = [ContentRef.model_validate(e) for e in related_experiments]
+    return success(response)
 
 
 # --- write endpoints (unauthenticated for now; secured in M2.7) -------------

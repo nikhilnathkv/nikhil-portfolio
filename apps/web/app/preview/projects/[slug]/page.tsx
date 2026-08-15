@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
-import { ProjectView } from '@/components/projects/ProjectView';
+import { CaseStudyView } from '@/components/projects/CaseStudyView';
 import { StatusBadge } from '@/components/admin/ui/StatusBadge';
 import { getAdminProjectBySlug, getCurrentUser } from '@/lib/admin/server-api';
 
@@ -36,8 +36,9 @@ export default async function ProjectPreviewPage({
           Back to editor
         </Link>
       </div>
-      <main className="px-6 py-12">
-        <ProjectView project={project} />
+      {/* Render inside the public theme so the preview matches the live page exactly. */}
+      <main className="public-theme min-h-dvh bg-pub-bg text-pub-fg">
+        <CaseStudyView project={project} />
       </main>
     </div>
   );

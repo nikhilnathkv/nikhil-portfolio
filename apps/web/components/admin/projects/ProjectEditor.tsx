@@ -30,6 +30,8 @@ interface FormState {
   solution: string;
   architecture: string;
   engineering_decisions: string;
+  evaluation: string;
+  results: string;
   challenges: string;
   lessons_learned: string;
   category: string;
@@ -40,6 +42,7 @@ interface FormState {
   seo_title: string;
   seo_description: string;
   featured: boolean;
+  is_confidential: boolean;
   display_order: number;
   metrics: ProjectMetric[];
   skills: Skill[];
@@ -66,6 +69,8 @@ function emptyForm(): FormState {
     solution: '',
     architecture: '',
     engineering_decisions: '',
+    evaluation: '',
+    results: '',
     challenges: '',
     lessons_learned: '',
     category: '',
@@ -76,6 +81,7 @@ function emptyForm(): FormState {
     seo_title: '',
     seo_description: '',
     featured: false,
+    is_confidential: false,
     display_order: 0,
     metrics: [],
     skills: [],
@@ -92,6 +98,8 @@ function fromProject(p: Project): FormState {
     solution: p.solution ?? '',
     architecture: p.architecture ?? '',
     engineering_decisions: p.engineering_decisions ?? '',
+    evaluation: p.evaluation ?? '',
+    results: p.results ?? '',
     challenges: p.challenges ?? '',
     lessons_learned: p.lessons_learned ?? '',
     category: p.category ?? '',
@@ -102,6 +110,7 @@ function fromProject(p: Project): FormState {
     seo_title: p.seo_title ?? '',
     seo_description: p.seo_description ?? '',
     featured: p.featured,
+    is_confidential: p.is_confidential,
     display_order: p.display_order,
     metrics: p.metrics,
     skills: p.skills,
@@ -123,10 +132,13 @@ function buildPayload(form: FormState): ProjectWritePayload {
     solution: orNull(form.solution),
     architecture: orNull(form.architecture),
     engineering_decisions: orNull(form.engineering_decisions),
+    evaluation: orNull(form.evaluation),
+    results: orNull(form.results),
     challenges: orNull(form.challenges),
     lessons_learned: orNull(form.lessons_learned),
     category: orNull(form.category),
     featured: form.featured,
+    is_confidential: form.is_confidential,
     display_order: form.display_order,
     github_url: orNull(form.github_url),
     live_url: orNull(form.live_url),
@@ -453,6 +465,15 @@ export function ProjectEditor({ initial }: { initial?: Project }) {
               />
               ⭐ Featured project
             </label>
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              <input
+                type="checkbox"
+                checked={form.is_confidential}
+                onChange={(e) => set('is_confidential', e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              🔒 Confidential (client work — shown with proprietary details omitted)
+            </label>
             <p className="text-xs text-gray-400">
               Publishing is done with the Publish button — not by editing a status field.
             </p>
@@ -481,6 +502,22 @@ export function ProjectEditor({ initial }: { initial?: Project }) {
                 rows={4}
                 value={form.engineering_decisions}
                 onChange={(e) => set('engineering_decisions', e.target.value)}
+              />
+            </Field>
+            <Field label="Evaluation" hint="Markdown. How did you measure it? Only what you actually measured.">
+              <textarea
+                className={inputClass}
+                rows={4}
+                value={form.evaluation}
+                onChange={(e) => set('evaluation', e.target.value)}
+              />
+            </Field>
+            <Field label="Results" hint="Markdown. Outcomes & before/after. Never invent metrics.">
+              <textarea
+                className={inputClass}
+                rows={4}
+                value={form.results}
+                onChange={(e) => set('results', e.target.value)}
               />
             </Field>
             <Field label="Challenges" hint="Hard problems you hit — great interview material.">

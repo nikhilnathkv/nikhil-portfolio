@@ -49,11 +49,14 @@ export interface Project {
   solution: string | null;
   architecture: string | null;
   engineering_decisions: string | null;
+  evaluation: string | null;
+  results: string | null;
   challenges: string | null;
   lessons_learned: string | null;
   category: string | null;
   status: ContentStatus;
   featured: boolean;
+  is_confidential: boolean;
   display_order: number;
   github_url: string | null;
   live_url: string | null;
@@ -66,6 +69,15 @@ export interface Project {
   updated_at: string;
   metrics: ProjectMetric[];
   skills: Skill[];
+  related_research: ContentRef[];
+  related_experiments: ContentRef[];
+}
+
+/** Light reference to related content on a project (research / experiments). */
+export interface ContentRef {
+  id: string;
+  title: string;
+  slug: string;
 }
 
 /** Payload accepted by create/update (subset the editor controls). */
@@ -78,10 +90,13 @@ export interface ProjectWritePayload {
   solution?: string | null;
   architecture?: string | null;
   engineering_decisions?: string | null;
+  evaluation?: string | null;
+  results?: string | null;
   challenges?: string | null;
   lessons_learned?: string | null;
   category?: string | null;
   featured?: boolean;
+  is_confidential?: boolean;
   display_order?: number;
   github_url?: string | null;
   live_url?: string | null;

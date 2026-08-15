@@ -20,11 +20,14 @@ const created: Project = {
   solution: null,
   architecture: null,
   engineering_decisions: null,
+  evaluation: null,
+  results: null,
   challenges: null,
   lessons_learned: null,
   category: 'Computer Vision',
   status: 'draft',
   featured: false,
+  is_confidential: false,
   display_order: 0,
   github_url: null,
   live_url: null,
@@ -37,6 +40,8 @@ const created: Project = {
   updated_at: '2026-08-14T00:00:00Z',
   metrics: [],
   skills: [],
+  related_research: [],
+  related_experiments: [],
 };
 
 let fetchMock: ReturnType<typeof vi.fn>;

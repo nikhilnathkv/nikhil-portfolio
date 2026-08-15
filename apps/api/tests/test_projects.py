@@ -142,3 +142,74 @@ async def test_list_response_includes_metrics_and_hero_image(client: AsyncClient
     item = items[0]
     assert item["hero_image_url"] == "https://cdn.example.com/hero.png"
     assert [m["name"] for m in item["metrics"]] == ["Retrieval accuracy"]
+
+
+async def test_case_study_fields_roundtrip(client: AsyncClient) -> None:
+    """M4.3: evaluation + results + is_confidential persist and are returned."""
+    created = (
+        await client.post(
+            BASE,
+            json=_payload(
+                status="published",
+                evaluation="Recall@5 measured on a held-out set.",
+                results="Latency dropped from 1.2s to 420ms.",
+                is_confidential=True,
+            ),
+        )
+    ).json()["data"]
+    assert created["is_confidential"] is True
+
+    detail = (await client.get(f"{BASE}/{created['slug']}")).json()["data"]
+    assert detail["evaluation"] == "Recall@5 measured on a held-out set."
+    assert detail["results"] == "Latency dropped from 1.2s to 420ms."
+    assert detail["is_confidential"] is True
+    # Related content defaults to empty lists when nothing is linked.
+    assert detail["related_research"] == []
+    assert detail["related_experiments"] == []
+
+
+async def test_project_detail_includes_published_related_content(admin_client: AsyncClient) -> None:
+    """M4.3: the case study surfaces only PUBLISHED research/experiments linked to it."""
+    project = (
+        await admin_client.post(
+            "/api/v1/admin/projects",
+            json={
+                "title": "Graph Host",
+                "short_description": "d",
+                "description": "full",
+                "category": "GenAI",
+            },
+        )
+    ).json()["data"]
+
+    # Published research linked to the project -> should appear.
+    await admin_client.post(
+        "/api/v1/admin/research",
+        json={
+            "title": "Retrieval Strategy Eval",
+            "abstract": "a",
+            "project_id": project["id"],
+            "status": "published",
+        },
+    )
+    # Draft research linked to the project -> must NOT appear.
+    await admin_client.post(
+        "/api/v1/admin/research",
+        json={"title": "Secret WIP", "abstract": "a", "project_id": project["id"]},
+    )
+    # Published experiment linked to the project -> should appear.
+    await admin_client.post(
+        "/api/v1/admin/experiments",
+        json={
+            "title": "BM25 vs Dense",
+            "hypothesis": "h",
+            "project_id": project["id"],
+            "status": "published",
+        },
+    )
+    # Publish the project so the public detail is reachable.
+    await admin_client.post(f"/api/v1/admin/projects/{project['id']}/publish")
+
+    detail = (await admin_client.get(f"{BASE}/{project['slug']}")).json()["data"]
+    assert [r["title"] for r in detail["related_research"]] == ["Retrieval Strategy Eval"]
+    assert [e["title"] for e in detail["related_experiments"]] == ["BM25 vs Dense"]

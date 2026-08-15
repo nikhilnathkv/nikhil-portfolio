@@ -25,7 +25,16 @@ class ResearchService:
         self.repo = ResearchRepository(session)
         self.projects = ProjectRepository(session)
 
-    async def list(self, *, published_only: bool = True) -> list[Research]:
+    async def list(
+        self, *, published_only: bool = True, project_id: uuid.UUID | None = None
+    ) -> list[Research]:
+        if project_id is not None:
+            filters = ResearchFilters(
+                status=ContentStatus.PUBLISHED if published_only else None,
+                project_id=project_id,
+            )
+            page = await self.repo.search(filters=filters, pagination=PageRequest(page_size=100))
+            return page.items
         if published_only:
             return await self.repo.get_published()
         return await self.repo.list(order_by=(Research.created_at.desc(),))
