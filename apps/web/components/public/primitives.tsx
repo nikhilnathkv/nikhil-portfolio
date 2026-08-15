@@ -84,7 +84,11 @@ export function Prose({ children, className }: { children: ReactNode; className?
 type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 type ButtonSize = 'sm' | 'md';
 
-function buttonClasses(variant: ButtonVariant, size: ButtonSize, className?: string): string {
+export function buttonClasses(
+  variant: ButtonVariant = 'primary',
+  size: ButtonSize = 'md',
+  className?: string,
+): string {
   const base =
     'inline-flex items-center justify-center gap-2 rounded-full font-medium transition-colors [transition-duration:var(--pub-duration)] disabled:cursor-not-allowed disabled:opacity-50';
   const sizes: Record<ButtonSize, string> = {

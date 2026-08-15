@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { ExperimentView } from '@/components/content/ExperimentView';
+import { TrackView } from '@/components/public';
 import { getPublishedExperiment } from '@/services/experiments';
 
 export async function generateMetadata({
@@ -30,5 +31,10 @@ export default async function PublicExperimentPage({
   const { slug } = await params;
   const experiment = await getPublishedExperiment(slug);
   if (!experiment) notFound();
-  return <ExperimentView experiment={experiment} />;
+  return (
+    <>
+      <TrackView event="experiment_view" props={{ slug: experiment.slug }} />
+      <ExperimentView experiment={experiment} />
+    </>
+  );
 }

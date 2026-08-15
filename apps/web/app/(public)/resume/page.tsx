@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { MarkdownPreview } from '@/components/cms/MarkdownPreview';
-import { ButtonLink, Container, SkillGroup } from '@/components/public';
+import { ButtonLink, Container, SkillGroup, TrackView, TrackedLink } from '@/components/public';
 import { formatDateRange } from '@/lib/format';
 import { listExperience } from '@/services/experience';
 import { getProfile } from '@/services/profile';
@@ -45,6 +45,7 @@ export default async function ResumePage() {
 
   return (
     <Container size="prose" className="py-12 sm:py-16">
+      <TrackView event="resume_view" />
       {/* Header */}
       <header className="flex flex-col gap-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -53,14 +54,15 @@ export default async function ResumePage() {
             <p className="mt-1 text-lg text-pub-muted">{headline}</p>
           </div>
           {resume?.file_url ? (
-            <a
+            <TrackedLink
+              event="resume_download"
               href={resume.file_url}
               target="_blank"
               rel="noopener noreferrer"
               className="no-print inline-flex items-center gap-2 rounded-full bg-pub-accent px-5 py-2.5 text-sm font-medium text-pub-accent-contrast transition-colors [transition-duration:var(--pub-duration)] hover:bg-pub-accent-hover"
             >
               Download PDF ↓
-            </a>
+            </TrackedLink>
           ) : null}
         </div>
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-pub-muted">

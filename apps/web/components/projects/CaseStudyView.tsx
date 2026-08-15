@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 import { MarkdownPreview } from '@/components/cms/MarkdownPreview';
-import { ButtonLink, Container, Eyebrow, MetricStat, TagList } from '@/components/public';
+import { buttonClasses, Container, Eyebrow, MetricStat, TagList, TrackedLink } from '@/components/public';
 import { PublicImage } from '@/components/public/PublicImage';
 import type { ContentRef, Project } from '@/lib/admin/project-types';
 
@@ -140,13 +140,17 @@ export function CaseStudyView({ project }: { project: Project }) {
           {links.length > 0 ? (
             <div className="mt-1 flex flex-wrap gap-3">
               {links.map((l, i) => (
-                <ButtonLink
+                <TrackedLink
                   key={l.label}
+                  event={l.label === 'GitHub' ? 'github_click' : 'demo_click'}
+                  eventProps={{ project: project.slug }}
                   href={l.href}
-                  variant={i === 0 ? 'primary' : 'secondary'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={buttonClasses(i === 0 ? 'primary' : 'secondary')}
                 >
                   {l.label} ↗
-                </ButtonLink>
+                </TrackedLink>
               ))}
             </div>
           ) : null}
@@ -193,11 +197,11 @@ export function CaseStudyView({ project }: { project: Project }) {
             {hasMetrics ? (
               <section id="metrics" className="scroll-mt-24">
                 <h2 className="sr-only">Key metrics</h2>
-                <dl className="grid grid-cols-2 gap-6 sm:grid-cols-3">
+                <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
                   {project.metrics.map((m) => (
                     <MetricStat key={m.id ?? m.name} value={m.value} unit={m.unit} label={m.name} />
                   ))}
-                </dl>
+                </div>
               </section>
             ) : null}
 

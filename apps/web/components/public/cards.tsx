@@ -51,20 +51,17 @@ export function ProjectCard({
         <p className="line-clamp-3 text-sm leading-relaxed text-pub-muted">{summary}</p>
         {tags.length > 0 ? <TagList tags={tags.slice(0, 4)} className="relative z-10" /> : null}
         {shown.length > 0 ? (
-          <dl className="mt-auto flex flex-wrap gap-x-8 gap-y-3 pt-2">
+          <div className="mt-auto flex flex-wrap gap-x-8 gap-y-3 pt-2">
             {shown.map((m) => (
               <div key={m.label} className="flex flex-col">
-                <dt className="sr-only">{m.label}</dt>
-                <dd className="text-2xl font-semibold tracking-tight text-pub-fg">
+                <span className="text-2xl font-semibold tracking-tight text-pub-fg">
                   {m.value}
                   {m.unit ? <span className="ml-0.5 text-base text-pub-muted">{m.unit}</span> : null}
-                </dd>
-                <span aria-hidden className="text-xs text-pub-subtle">
-                  {m.label}
                 </span>
+                <span className="text-xs text-pub-subtle">{m.label}</span>
               </div>
             ))}
-          </dl>
+          </div>
         ) : null}
         <span className="mt-1 font-mono text-xs text-pub-accent">View case study →</span>
       </div>

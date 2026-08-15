@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 
 import { ArticleView } from '@/components/content/ArticleView';
 import { ArticleJsonLd } from '@/components/content/ContentJsonLd';
+import { TrackView } from '@/components/public';
 import { getPublishedPost } from '@/services/blog';
 
 export async function generateMetadata({
@@ -39,6 +40,7 @@ export default async function PublicBlogPage({ params }: { params: Promise<{ slu
   if (!post) notFound();
   return (
     <>
+      <TrackView event="article_view" props={{ slug: post.slug }} />
       <ArticleJsonLd
         title={post.title}
         description={post.excerpt}

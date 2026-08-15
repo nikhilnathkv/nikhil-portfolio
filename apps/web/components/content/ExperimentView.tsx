@@ -30,11 +30,11 @@ export function ExperimentView({ experiment }: { experiment: Experiment }) {
           </header>
 
           {experiment.metrics.length > 0 ? (
-            <dl className="mt-8 grid grid-cols-2 gap-6 border-t border-pub-border pt-8 sm:grid-cols-3">
+            <div className="mt-8 grid grid-cols-2 gap-6 border-t border-pub-border pt-8 sm:grid-cols-3">
               {experiment.metrics.map((m) => (
                 <MetricStat key={m.id ?? m.name} value={m.value} unit={m.unit} label={m.name} />
               ))}
-            </dl>
+            </div>
           ) : null}
 
           <div className="mt-8 flex flex-col gap-8">

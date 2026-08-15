@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 
 import { ArticleJsonLd } from '@/components/content/ContentJsonLd';
 import { ResearchView } from '@/components/content/ResearchView';
+import { TrackView } from '@/components/public';
 import { getPublishedResearch } from '@/services/research';
 
 export async function generateMetadata({
@@ -41,6 +42,7 @@ export default async function PublicResearchPage({
   if (!research) notFound();
   return (
     <>
+      <TrackView event="research_view" props={{ slug: research.slug }} />
       <ArticleJsonLd
         type="ScholarlyArticle"
         title={research.title}

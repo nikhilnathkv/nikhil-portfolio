@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { CaseStudyView } from '@/components/projects/CaseStudyView';
+import { TrackView } from '@/components/public';
 import { getPublishedProject } from '@/services/projects';
 
 export async function generateMetadata({
@@ -34,5 +35,10 @@ export default async function PublicProjectPage({ params }: { params: Promise<{ 
   const project = await getPublishedProject(slug);
   if (!project) notFound();
 
-  return <CaseStudyView project={project} />;
+  return (
+    <>
+      <TrackView event="project_view" props={{ slug: project.slug }} />
+      <CaseStudyView project={project} />
+    </>
+  );
 }

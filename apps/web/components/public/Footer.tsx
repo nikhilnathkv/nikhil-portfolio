@@ -1,8 +1,19 @@
 import Link from 'next/link';
 
+import type { AnalyticsEvent } from '@/lib/analytics';
+
 import { cn } from './cn';
 import { Container } from './primitives';
 import { NAV_LINKS } from './nav-links';
+import { TrackedLink } from './TrackedLink';
+
+/** Map a social label to its analytics click event (falls back to none). */
+function socialEvent(label: string): AnalyticsEvent | null {
+  const l = label.toLowerCase();
+  if (l.includes('linkedin')) return 'linkedin_click';
+  if (l.includes('github')) return 'github_click';
+  return null;
+}
 
 export interface SocialLink {
   label: string;
@@ -56,18 +67,29 @@ export function Footer({
           </p>
           {socials.length > 0 ? (
             <ul className="flex flex-wrap gap-4 text-sm">
-              {socials.map((s) => (
-                <li key={s.href}>
-                  <a
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-pub-muted transition-colors hover:text-pub-fg"
-                  >
-                    {s.label}
-                  </a>
-                </li>
-              ))}
+              {socials.map((s) => {
+                const event = socialEvent(s.label);
+                const className = 'text-pub-muted transition-colors hover:text-pub-fg';
+                return (
+                  <li key={s.href}>
+                    {event ? (
+                      <TrackedLink
+                        event={event}
+                        href={s.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={className}
+                      >
+                        {s.label}
+                      </TrackedLink>
+                    ) : (
+                      <a href={s.href} target="_blank" rel="noopener noreferrer" className={className}>
+                        {s.label}
+                      </a>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           ) : null}
         </div>

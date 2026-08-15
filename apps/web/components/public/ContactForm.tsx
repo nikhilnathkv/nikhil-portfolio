@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { Button } from '@/components/public';
+import { track } from '@/lib/analytics';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -15,8 +16,17 @@ export function ContactForm() {
   const [message, setMessage] = useState('');
   const [honeypot, setHoneypot] = useState(''); // spam trap — real users never fill this
   const [status, setStatus] = useState<Status>('idle');
+  const started = useRef(false);
 
   const disabled = status === 'submitting';
+
+  // Fire contact_started once, on first real interaction.
+  function onFirstInput() {
+    if (!started.current) {
+      started.current = true;
+      track('contact_started');
+    }
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,6 +42,7 @@ export function ContactForm() {
         body: JSON.stringify({ name, email, message, honeypot }),
       });
       if (!res.ok) throw new Error('request failed');
+      track('contact_submitted');
       setStatus('success');
       setName('');
       setEmail('');
@@ -53,7 +64,7 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
+    <form onSubmit={onSubmit} onFocus={onFirstInput} noValidate className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <label htmlFor="cf-name" className="text-sm font-medium text-pub-fg">
           Name

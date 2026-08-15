@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { Footer, PublicNav, SkipToContent, type SocialLink } from '@/components/public';
+import { Analytics, Footer, PublicNav, SkipToContent, type SocialLink } from '@/components/public';
 import { getProfile } from '@/services/profile';
 
 /**
@@ -22,6 +22,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
   return (
     <div className="public-theme flex min-h-dvh flex-col bg-pub-bg text-pub-fg">
       <SkipToContent />
+      <Analytics />
       <div className="no-print">
         <PublicNav siteName={siteName} />
       </div>

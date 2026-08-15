@@ -72,7 +72,7 @@ export default async function AboutPage() {
 
           {/* Career highlights — only substantiated numbers. */}
           {(years || projectCount > 0) && (
-            <dl className="mt-12 flex flex-wrap gap-x-12 gap-y-6">
+            <div className="mt-12 flex flex-wrap gap-x-12 gap-y-6">
               {years ? <MetricStat value={`${years}+`} label="Years experience" /> : null}
               {projectCount > 0 ? (
                 <MetricStat value={`${projectCount}`} label="Case studies" />
@@ -80,7 +80,7 @@ export default async function AboutPage() {
               {focusAreas.length > 0 ? (
                 <MetricStat value={`${focusAreas.length}`} label="Focus areas" />
               ) : null}
-            </dl>
+            </div>
           )}
         </Container>
       </Section>
