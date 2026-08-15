@@ -142,4 +142,6 @@ class ProjectListResponse(TimestampedResponse):
     featured: bool
     display_order: int
     published_at: datetime | None = None
+    hero_image_url: str | None = None
+    metrics: list[ProjectMetricResponse] = []
     skills: list[SkillResponse] = []

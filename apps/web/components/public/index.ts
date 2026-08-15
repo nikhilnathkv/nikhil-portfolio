@@ -21,6 +21,7 @@ export { Footer, type SocialLink } from './Footer';
 export { SkipToContent } from './SkipToContent';
 export {
   ArticleCard,
+  type CardMetric,
   ExperienceItem,
   ExperimentCard,
   ProjectCard,

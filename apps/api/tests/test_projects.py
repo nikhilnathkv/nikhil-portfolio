@@ -125,3 +125,20 @@ async def test_update_unknown_id_returns_404(client: AsyncClient) -> None:
 async def test_invalid_uuid_returns_422(client: AsyncClient) -> None:
     resp = await client.put(f"{BASE}/not-a-uuid", json={"title": "x"})
     assert resp.status_code == 422
+
+
+async def test_list_response_includes_metrics_and_hero_image(client: AsyncClient) -> None:
+    """M4.2: the homepage/list cards need metrics + hero image on the list shape."""
+    await client.post(
+        BASE,
+        json=_payload(
+            status="published",
+            hero_image_url="https://cdn.example.com/hero.png",
+            metrics=[{"name": "Retrieval accuracy", "value": "94", "unit": "%"}],
+        ),
+    )
+    items = (await client.get(BASE)).json()["data"]
+    assert items, "expected at least one published project"
+    item = items[0]
+    assert item["hero_image_url"] == "https://cdn.example.com/hero.png"
+    assert [m["name"] for m in item["metrics"]] == ["Retrieval accuracy"]

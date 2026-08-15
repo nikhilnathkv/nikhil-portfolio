@@ -15,6 +15,12 @@ function formatDate(iso: string | null | undefined): string | null {
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
+export interface CardMetric {
+  value: string;
+  unit?: string | null;
+  label: string;
+}
+
 /** Project case-study card. */
 export function ProjectCard({
   slug,
@@ -24,6 +30,7 @@ export function ProjectCard({
   imageUrl,
   imageAlt,
   tags = [],
+  metrics = [],
 }: {
   slug: string;
   title: string;
@@ -32,15 +39,34 @@ export function ProjectCard({
   imageUrl?: string | null;
   imageAlt?: string;
   tags?: string[];
+  metrics?: CardMetric[];
 }) {
+  const shown = metrics.slice(0, 2);
   return (
     <CardLink href={`/projects/${slug}`} ariaLabel={title} className="flex flex-col gap-4 p-0">
       <PublicImage src={imageUrl} alt={imageAlt ?? title} aspect="video" className="rounded-b-none" />
-      <div className="flex flex-col gap-3 p-6 pt-2">
+      <div className="flex flex-1 flex-col gap-3 p-6 pt-2">
         {category ? <Eyebrow>{category}</Eyebrow> : null}
         <h3 className="text-xl font-semibold tracking-tight text-pub-fg">{title}</h3>
         <p className="line-clamp-3 text-sm leading-relaxed text-pub-muted">{summary}</p>
         {tags.length > 0 ? <TagList tags={tags.slice(0, 4)} className="relative z-10" /> : null}
+        {shown.length > 0 ? (
+          <dl className="mt-auto flex flex-wrap gap-x-8 gap-y-3 pt-2">
+            {shown.map((m) => (
+              <div key={m.label} className="flex flex-col">
+                <dt className="sr-only">{m.label}</dt>
+                <dd className="text-2xl font-semibold tracking-tight text-pub-fg">
+                  {m.value}
+                  {m.unit ? <span className="ml-0.5 text-base text-pub-muted">{m.unit}</span> : null}
+                </dd>
+                <span aria-hidden className="text-xs text-pub-subtle">
+                  {m.label}
+                </span>
+              </div>
+            ))}
+          </dl>
+        ) : null}
+        <span className="mt-1 font-mono text-xs text-pub-accent">View case study →</span>
       </div>
     </CardLink>
   );

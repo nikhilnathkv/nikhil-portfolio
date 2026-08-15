@@ -1,68 +1,84 @@
 import type { Metadata } from 'next';
 
+import type { SocialLink } from '@/components/public';
 import {
-  ButtonLink,
-  CardLink,
-  Container,
-  Eyebrow,
-  Section,
-} from '@/components/public';
+  AboutPreview,
+  ClosingCta,
+  EngineeringFocus,
+  ExperiencePreview,
+  Hero,
+  ResearchWriting,
+  SelectedWork,
+} from '@/components/public/home';
+import { PersonWebSiteJsonLd } from '@/components/public/JsonLd';
+import { SITE } from '@/lib/site';
+import { listPosts } from '@/services/blog';
+import { listExperience } from '@/services/experience';
 import { getProfile } from '@/services/profile';
+import { listProjects } from '@/services/projects';
+import { listResearch } from '@/services/research';
+import { listSkills } from '@/services/skills';
 
 export const metadata: Metadata = {
+  // Home is the canonical root; give it a full (non-templated) title.
+  title: {
+    absolute: 'Nikhil Nath — AI/ML Engineer · GenAI, Agentic AI & ML Systems',
+  },
   description:
-    'Portfolio of Nikhil Nath — AI/ML engineering projects, research, experiments, and writing.',
+    'AI/ML engineer building production-grade intelligent systems across GenAI, agentic AI, machine learning, and data platforms.',
+  alternates: { canonical: '/' },
 };
 
-const EXPLORE = [
-  { href: '/projects', title: 'Projects', blurb: 'Technical case studies with architecture and metrics.' },
-  { href: '/writing', title: 'Writing', blurb: 'Notes and deep-dives on ML engineering.' },
-  { href: '/research', title: 'Research', blurb: 'Papers, findings, and ongoing investigations.' },
-  { href: '/experiments', title: 'Experiments', blurb: 'Small builds and measured results.' },
-];
+const DEFAULT_TECH = ['GenAI', 'Agentic AI', 'RAG', 'ML', 'MLOps', 'Computer Vision'];
 
 export default async function HomePage() {
-  const profile = await getProfile();
-  const name = profile?.name?.trim() || 'Nikhil Nath';
-  const headline = profile?.headline?.trim() || 'AI / ML Engineer';
-  const bio =
+  // Single conceptual resource (the homepage) — fetch its parts in parallel.
+  const [profile, featuredProjects, experience, writing, research, skills] = await Promise.all([
+    getProfile(),
+    listProjects({ featured: true }),
+    listExperience(),
+    listPosts(),
+    listResearch(),
+    listSkills(),
+  ]);
+
+  const name = profile?.name?.trim() || SITE.name;
+  const role = profile?.headline?.trim() || 'AI / ML Engineer';
+  const positioning =
     profile?.short_bio?.trim() ||
-    'Building and shipping machine-learning systems — from research and experiments to production.';
+    'I build production-grade AI systems across GenAI, agentic AI, machine learning, and intelligent data platforms.';
+  const about =
+    profile?.long_bio?.trim() ||
+    profile?.short_bio?.trim() ||
+    'I’m an AI/ML engineer focused on building production-grade intelligent systems — spanning machine learning, GenAI, agentic systems, data platforms, and computer vision.';
+
+  // Tech signal from featured skills, falling back to a curated set.
+  const featuredSkills = skills
+    .flatMap((c) => c.skills)
+    .filter((s) => s.featured)
+    .map((s) => s.name);
+  const techSignal = (featuredSkills.length > 0 ? featuredSkills : DEFAULT_TECH).slice(0, 8);
+
+  const socials: SocialLink[] = [
+    profile?.github_url ? { label: 'GitHub', href: profile.github_url } : null,
+    profile?.linkedin_url ? { label: 'LinkedIn', href: profile.linkedin_url } : null,
+    profile?.email ? { label: 'Email', href: `mailto:${profile.email}` } : null,
+  ].filter((s): s is SocialLink => s !== null);
 
   return (
     <>
-      {/* Hero */}
-      <Section as="div" className="pb-8 pt-20 sm:pt-28">
-        <Container>
-          <div className="flex max-w-3xl flex-col gap-6">
-            <Eyebrow>{headline}</Eyebrow>
-            <h1 className="text-5xl font-semibold tracking-tight text-pub-fg text-balance sm:text-6xl">
-              {name}
-            </h1>
-            <p className="max-w-2xl text-pretty text-lg leading-relaxed text-pub-muted">{bio}</p>
-            <div className="mt-2 flex flex-wrap gap-3">
-              <ButtonLink href="/projects">View projects</ButtonLink>
-              <ButtonLink href="/contact" variant="secondary">
-                Get in touch
-              </ButtonLink>
-            </div>
-          </div>
-        </Container>
-      </Section>
-
-      {/* Explore */}
-      <Section as="div" className="pt-8">
-        <Container>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {EXPLORE.map((item) => (
-              <CardLink key={item.href} href={item.href} ariaLabel={item.title} className="flex flex-col gap-2">
-                <h2 className="text-lg font-semibold tracking-tight text-pub-fg">{item.title}</h2>
-                <p className="text-sm leading-relaxed text-pub-muted">{item.blurb}</p>
-              </CardLink>
-            ))}
-          </div>
-        </Container>
-      </Section>
+      <PersonWebSiteJsonLd
+        name={name}
+        role={role}
+        sameAs={socials.filter((s) => s.href.startsWith('http')).map((s) => s.href)}
+      />
+      <Hero name={name} role={role} positioning={positioning} techSignal={techSignal} />
+      <SelectedWork projects={featuredProjects} githubUrl={profile?.github_url} />
+      <EngineeringFocus categories={skills} />
+      <ExperiencePreview experience={experience} />
+      <ResearchWriting research={research} writing={writing} />
+      <AboutPreview bio={about} />
+      <ClosingCta socials={socials} />
     </>
   );
 }

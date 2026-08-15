@@ -33,6 +33,8 @@ export interface ProjectListItem {
   published_at: string | null;
   created_at: string;
   updated_at: string;
+  hero_image_url: string | null;
+  metrics: ProjectMetric[];
   skills: Skill[];
 }
 

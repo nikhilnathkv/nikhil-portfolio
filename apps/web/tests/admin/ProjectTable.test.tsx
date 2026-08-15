@@ -17,6 +17,8 @@ const base = {
   published_at: null,
   created_at: '2026-08-14T00:00:00Z',
   updated_at: '2026-08-14T00:00:00Z',
+  hero_image_url: null,
+  metrics: [],
   skills: [],
 };
 
