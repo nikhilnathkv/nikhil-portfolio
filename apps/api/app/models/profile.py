@@ -30,6 +30,9 @@ class Profile(UUIDPKMixin, TimestampMixin, Base):
     email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     linkedin_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     github_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    # Markdown lists for the resume (kept as free-form content, not tables).
+    education: Mapped[str | None] = mapped_column(Text, nullable=True)
+    certifications: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     profile_image_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("media.id", ondelete="SET NULL"), nullable=True

@@ -25,6 +25,9 @@ async def submit_contact(
     request: Request,
     service: ContactService = Depends(get_contact_service),
 ) -> SuccessResponse[ContactAck]:
+    # Honeypot tripped → look successful, store nothing (don't tip off the bot).
+    if payload.honeypot:
+        return success(ContactAck())
     ip = request.client.host if request.client else None
     await service.submit_contact_message(payload, ip=ip)
     return success(ContactAck())

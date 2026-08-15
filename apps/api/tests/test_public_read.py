@@ -128,3 +128,23 @@ async def test_resume_active(client: AsyncClient, db_session: AsyncSession) -> N
     resp = await client.get("/api/v1/resume")
     assert resp.status_code == 200
     assert resp.json()["data"]["version"] == "v1"
+
+
+async def test_profile_education_and_certifications(
+    client: AsyncClient, db_session: AsyncSession
+) -> None:
+    """M4.6: the resume reads education + certifications from the profile."""
+    db_session.add(
+        Profile(
+            name="Nikhil",
+            headline="AI Engineer",
+            short_bio="Short",
+            long_bio="Long",
+            education="- BSc, Example University",
+            certifications="- Azure AI Engineer",
+        )
+    )
+    await db_session.commit()
+    data = (await client.get("/api/v1/profile")).json()["data"]
+    assert data["education"] == "- BSc, Example University"
+    assert data["certifications"] == "- Azure AI Engineer"

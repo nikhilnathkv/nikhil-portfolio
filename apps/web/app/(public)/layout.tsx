@@ -22,11 +22,15 @@ export default async function PublicLayout({ children }: { children: ReactNode }
   return (
     <div className="public-theme flex min-h-dvh flex-col bg-pub-bg text-pub-fg">
       <SkipToContent />
-      <PublicNav siteName={siteName} />
+      <div className="no-print">
+        <PublicNav siteName={siteName} />
+      </div>
       <main id="content" className="flex-1">
         {children}
       </main>
-      <Footer siteName={siteName} socials={socials} />
+      <div className="no-print">
+        <Footer siteName={siteName} socials={socials} />
+      </div>
     </div>
   );
 }

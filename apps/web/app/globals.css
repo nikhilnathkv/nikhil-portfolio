@@ -125,6 +125,36 @@ body {
   animation: pub-fade-up 0.5s var(--pub-ease) both;
 }
 
+/*
+ * Print styles (M4.6 resume). Flip the public theme to ink-on-paper, drop the
+ * entrance animation, and hide anything marked .no-print (nav, footer, the
+ * download button) so /resume prints / exports to PDF cleanly.
+ */
+@media print {
+  .public-theme {
+    --pub-bg: #ffffff;
+    --pub-surface: #ffffff;
+    --pub-surface-2: #ffffff;
+    --pub-border: #d0d0d0;
+    --pub-border-strong: #b0b0b0;
+    --pub-fg: #111111;
+    --pub-fg-muted: #333333;
+    --pub-fg-subtle: #555555;
+    --pub-accent: #111111;
+    --pub-accent-hover: #111111;
+    --pub-accent-contrast: #ffffff;
+    --foreground: #111111;
+    --background: #ffffff;
+    background: #ffffff !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .pub-reveal {
+    animation: none !important;
+  }
+}
+
 /* Respect reduced-motion everywhere on the public site. */
 @media (prefers-reduced-motion: reduce) {
   .public-theme *,

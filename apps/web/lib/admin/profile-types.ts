@@ -27,6 +27,8 @@ export interface Profile {
   email: string | null;
   linkedin_url: string | null;
   github_url: string | null;
+  education: string | null;
+  certifications: string | null;
   profile_image_id: string | null;
   resume_id: string | null;
   profile_image: Media | null;
@@ -42,6 +44,8 @@ export interface ProfileWritePayload {
   email?: string | null;
   linkedin_url?: string | null;
   github_url?: string | null;
+  education?: string | null;
+  certifications?: string | null;
   profile_image_id?: string | null;
   resume_id?: string | null;
 }

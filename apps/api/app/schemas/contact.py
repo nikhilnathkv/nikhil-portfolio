@@ -13,6 +13,9 @@ class ContactMessageCreate(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     email: EmailStr
     message: str = Field(min_length=1, max_length=5000)
+    # Honeypot: a hidden form field real users never fill. Bots that populate it
+    # get a normal-looking success without anything being stored.
+    honeypot: str | None = Field(default=None, max_length=255)
 
 
 class ContactMessageResponse(ORMModel):

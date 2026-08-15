@@ -130,3 +130,20 @@ async def test_admin_resume_activation(admin_client: AsyncClient) -> None:
     resumes = {r["id"]: r["is_active"] for r in (await admin_client.get(base)).json()["data"]}
     assert resumes[r1["id"]] is False
     assert resumes[r2["id"]] is True
+
+
+async def test_contact_honeypot_is_silently_dropped(admin_client: AsyncClient) -> None:
+    """A filled honeypot returns success but stores nothing (M4.6 anti-spam)."""
+    spam = await admin_client.post(
+        "/api/v1/contact",
+        json={"name": "Bot", "email": "bot@example.com", "message": "spam", "honeypot": "x"},
+    )
+    assert spam.status_code == 201  # looks normal to the bot
+    clean = await admin_client.post(
+        "/api/v1/contact",
+        json={"name": "Real", "email": "real@example.com", "message": "hello"},
+    )
+    assert clean.status_code == 201
+
+    listed = (await admin_client.get("/api/v1/admin/messages")).json()["data"]
+    assert [m["name"] for m in listed] == ["Real"]

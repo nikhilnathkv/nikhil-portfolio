@@ -31,6 +31,8 @@ beforeEach(() => {
     profile_image_id: null,
     resume_id: null,
     profile_image: null,
+    education: null,
+    certifications: null,
     resume: null,
   });
   vi.mocked(listProjects).mockResolvedValue([]);

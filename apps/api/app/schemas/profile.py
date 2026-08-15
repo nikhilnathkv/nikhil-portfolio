@@ -19,6 +19,8 @@ class ProfileBase(BaseModel):
     email: EmailStr | None = None
     linkedin_url: HttpUrlStr | None = Field(default=None, max_length=512)
     github_url: HttpUrlStr | None = Field(default=None, max_length=512)
+    education: str | None = None
+    certifications: str | None = None
 
 
 class ProfileCreate(ProfileBase):
@@ -35,6 +37,8 @@ class ProfileUpdate(BaseModel):
     email: EmailStr | None = None
     linkedin_url: HttpUrlStr | None = Field(default=None, max_length=512)
     github_url: HttpUrlStr | None = Field(default=None, max_length=512)
+    education: str | None = None
+    certifications: str | None = None
     profile_image_id: uuid.UUID | None = None
     resume_id: uuid.UUID | None = None
 
@@ -49,6 +53,8 @@ class ProfileResponse(TimestampedResponse):
     email: str | None = None
     linkedin_url: str | None = None
     github_url: str | None = None
+    education: str | None = None
+    certifications: str | None = None
     profile_image_id: uuid.UUID | None = None
     resume_id: uuid.UUID | None = None
     profile_image: MediaResponse | None = None

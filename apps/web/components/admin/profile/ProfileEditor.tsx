@@ -18,6 +18,8 @@ interface FormState {
   email: string;
   linkedin_url: string;
   github_url: string;
+  education: string;
+  certifications: string;
   profile_image_id: string | null;
   resume_id: string | null;
 }
@@ -32,6 +34,8 @@ function emptyForm(): FormState {
     email: '',
     linkedin_url: '',
     github_url: '',
+    education: '',
+    certifications: '',
     profile_image_id: null,
     resume_id: null,
   };
@@ -47,6 +51,8 @@ function fromProfile(p: Profile): FormState {
     email: p.email ?? '',
     linkedin_url: p.linkedin_url ?? '',
     github_url: p.github_url ?? '',
+    education: p.education ?? '',
+    certifications: p.certifications ?? '',
     profile_image_id: p.profile_image_id,
     resume_id: p.resume_id,
   };
@@ -64,6 +70,8 @@ function buildPayload(f: FormState): ProfileWritePayload {
     email: orNull(f.email),
     linkedin_url: orNull(f.linkedin_url),
     github_url: orNull(f.github_url),
+    education: orNull(f.education),
+    certifications: orNull(f.certifications),
     profile_image_id: f.profile_image_id,
     resume_id: f.resume_id,
   };
@@ -255,6 +263,25 @@ export function ProfileEditor({ initial }: { initial: Profile | null }) {
               value={form.github_url}
               onChange={(e) => set('github_url', e.target.value)}
               placeholder="https://github.com/…"
+            />
+          </Field>
+        </Section>
+
+        <Section id="resume-content" title="Resume content">
+          <Field label="Education" hint="Markdown list — shown on /resume. e.g. - BSc, University (Year)">
+            <textarea
+              className={inputClass}
+              rows={4}
+              value={form.education}
+              onChange={(e) => set('education', e.target.value)}
+            />
+          </Field>
+          <Field label="Certifications" hint="Markdown list — shown on /resume.">
+            <textarea
+              className={inputClass}
+              rows={4}
+              value={form.certifications}
+              onChange={(e) => set('certifications', e.target.value)}
             />
           </Field>
         </Section>
