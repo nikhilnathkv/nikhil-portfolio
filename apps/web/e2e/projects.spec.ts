@@ -45,8 +45,9 @@ test('golden path: create → draft → preview → publish → public', async (
   await page.getByLabel('Overview', { exact: false }).fill('A longer overview of the project.');
   await page.getByLabel(/Category/).selectOption('GenAI');
 
-  // Add a skill
-  await page.getByLabel('Search technologies').fill('Playwright');
+  // Add a skill (search the full unique name so it's not hidden by the 8-result cap
+  // when the shared dev DB has accumulated many similar skills across runs).
+  await page.getByLabel('Search technologies').fill(`PlaywrightSkill${unique}`);
   await page.getByRole('option', { name: `PlaywrightSkill${unique}` }).click();
   await expect(page.getByText(`PlaywrightSkill${unique}`)).toBeVisible();
 

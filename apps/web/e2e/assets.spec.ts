@@ -54,7 +54,13 @@ test('resume: upload a PDF and see it active', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'Preview' })).toBeVisible();
 });
 
-test('messages: open, read, archive', async ({ page, request }: { page: Page; request: APIRequestContext }) => {
+test('messages: open, read, archive', async ({
+  page,
+  request,
+}: {
+  page: Page;
+  request: APIRequestContext;
+}) => {
   const name = `Sender ${unique}`;
   await request.post(`${API}/contact`, {
     data: { name, email: 'sender@example.com', message: 'Hiring opportunity — lets talk.' },
@@ -72,9 +78,12 @@ test('settings: edit and persist', async ({ page }) => {
   await login(page);
   await page.goto('/admin/settings');
 
-  const value = `Nikhil Nath ${unique}`;
+  // Random suffix so the value never collides with what's already persisted
+  // (settings live in the shared DB across runs) — otherwise the form isn't dirty.
+  const value = `Nikhil Nath ${unique}-${Math.floor(Math.random() * 1e6)}`;
   const siteName = page.getByLabel('Site name');
   await siteName.fill(value);
+  await expect(page.getByRole('button', { name: 'Save' })).toBeEnabled();
   await page.getByRole('button', { name: 'Save' }).click();
   await expect(page.getByText('Settings saved.')).toBeVisible();
 

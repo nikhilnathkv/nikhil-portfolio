@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 export interface ConfirmDialogProps {
   open: boolean;
@@ -37,6 +39,8 @@ export function ConfirmDialog({
   // `typed` is fresh each time the dialog mounts (callers render it conditionally),
   // so no reset-on-open effect is needed.
   const [typed, setTyped] = useState('');
+  const panelRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(panelRef, open);
 
   useEffect(() => {
     if (!open) return;
@@ -64,7 +68,11 @@ export function ConfirmDialog({
         className="absolute inset-0 bg-gray-900/40"
         onClick={() => (busy ? undefined : onCancel())}
       />
-      <div className="relative w-full max-w-md rounded-xl border border-gray-200 bg-white p-5 shadow-xl">
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="relative w-full max-w-md rounded-xl border border-gray-200 bg-white p-5 shadow-xl outline-none"
+      >
         <h2 className="text-base font-semibold text-gray-900">{title}</h2>
         {children ? <div className="mt-2 text-sm text-gray-600">{children}</div> : null}
 

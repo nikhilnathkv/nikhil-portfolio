@@ -7,23 +7,14 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
 from app.core.exceptions import BusinessRuleViolationError, ResourceNotFoundError
+from app.core.uploads import validate_upload
 from app.models.blog import BlogPost
 from app.models.media import Media
 from app.models.profile import Profile
 from app.repositories.media import MediaRepository
 from app.schemas.media import MediaUpdate, MediaUsage, MediaUsageItem
 from app.services.storage import StorageService, get_storage_service
-
-# Allowed upload types (spec: images + PDF; no video).
-ALLOWED_MIME_TYPES = {
-    "image/png",
-    "image/jpeg",
-    "image/webp",
-    "image/svg+xml",
-    "application/pdf",
-}
 
 
 class MediaService:
@@ -49,14 +40,9 @@ class MediaService:
         content_type: str,
         alt_text: str | None = None,
     ) -> Media:
-        if content_type not in ALLOWED_MIME_TYPES:
-            raise BusinessRuleViolationError(
-                f"Unsupported file type '{content_type}'. Allowed: images and PDF."
-            )
-        max_bytes = settings.max_upload_mb * 1024 * 1024
-        if len(data) > max_bytes:
-            raise BusinessRuleViolationError(f"File exceeds the {settings.max_upload_mb} MB limit.")
-
+        content_type = validate_upload(
+            data=data, filename=original_filename, declared_mime=content_type
+        )
         key = self.storage.build_key(original_filename)
         url = self.storage.upload(data, key, content_type)
 

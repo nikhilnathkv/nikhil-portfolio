@@ -50,7 +50,10 @@ export function ErrorState({
   onRetry?: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-red-200 bg-red-50 px-6 py-12 text-center">
+    <div
+      role="alert"
+      className="flex flex-col items-center justify-center rounded-xl border border-red-200 bg-red-50 px-6 py-12 text-center"
+    >
       <p className="text-sm font-medium text-red-800">{message}</p>
       {onRetry ? (
         <button

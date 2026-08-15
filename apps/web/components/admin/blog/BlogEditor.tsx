@@ -190,7 +190,10 @@ export function BlogEditor({ initial }: { initial?: BlogPost }) {
       />
 
       {saveError ? (
-        <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+        <div
+          className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+          role="alert"
+        >
           <span>{saveError} Your changes are still here.</span>
           <button
             type="button"

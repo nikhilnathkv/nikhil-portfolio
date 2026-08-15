@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 /** Minimal modal shell (overlay + centered panel). Callers supply the body/footer. */
 export function Modal({
@@ -14,6 +16,9 @@ export function Modal({
   onClose: () => void;
   children: React.ReactNode;
 }) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(panelRef, open);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -37,7 +42,11 @@ export function Modal({
         className="absolute inset-0 bg-gray-900/40"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-md rounded-xl border border-gray-200 bg-white p-5 shadow-xl">
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="relative w-full max-w-md rounded-xl border border-gray-200 bg-white p-5 shadow-xl outline-none"
+      >
         <h2 className="mb-4 text-base font-semibold text-gray-900">{title}</h2>
         {children}
       </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Field, inputClass, Section } from '@/components/admin/ui/form';
 import { ErrorState, Skeleton } from '@/components/admin/ui/states';
@@ -22,27 +22,38 @@ export function SettingsForm() {
   const [saving, setSaving] = useState(false);
   const { toasts, push, dismiss } = useToasts();
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(false);
-    try {
-      const settings = await adminFetch<SiteSetting[]>('/settings');
-      const map: Record<string, string> = {};
-      for (const key of ALL_SETTING_KEYS) map[key] = '';
-      for (const s of settings) if (ALL_SETTING_KEYS.includes(s.key)) map[s.key] = s.value ?? '';
-      setValues(map);
-      setSaved(map);
-    } catch {
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // `reloadKey` triggers a re-fetch (retry button). The effect below is
+  // Strict-Mode safe: an `active` flag ensures a duplicate/late load never
+  // clobbers values the user has since edited.
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load();
-  }, [load]);
+    let active = true;
+    void (async () => {
+      if (active) setError(false);
+      try {
+        const settings = await adminFetch<SiteSetting[]>('/settings');
+        if (!active) return;
+        const map: Record<string, string> = {};
+        for (const key of ALL_SETTING_KEYS) map[key] = '';
+        for (const s of settings) if (ALL_SETTING_KEYS.includes(s.key)) map[s.key] = s.value ?? '';
+        setValues(map);
+        setSaved(map);
+      } catch {
+        if (active) setError(true);
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [reloadKey]);
+
+  const load = () => {
+    setLoading(true);
+    setReloadKey((k) => k + 1);
+  };
 
   const isDirty = useMemo(() => JSON.stringify(values) !== JSON.stringify(saved), [values, saved]);
   useUnsavedChanges(isDirty);

@@ -54,6 +54,9 @@ services:
     environment:
       # Ensure the API talks to the compose services regardless of .env host values.
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-portfolio}:${POSTGRES_PASSWORD:-portfolio}@postgres:5432/${POSTGRES_DB:-portfolio}
+      # Reach MinIO over the compose network; browsers still load assets via the public URL.
+      MINIO_ENDPOINT: storage:9000
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-http://localhost:9000}
     command: ['uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000', '--reload']
     volumes:
       # Mount source for hot-reload without shadowing the image's virtualenv.
@@ -73,6 +76,8 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
       API_INTERNAL_URL: ${API_INTERNAL_URL:-http://api:8000/api/v1}
+      # Public origin browsers load uploaded media from (also whitelisted in the CSP).
+      NEXT_PUBLIC_MEDIA_URL: ${NEXT_PUBLIC_MEDIA_URL:-http://localhost:9000}
     ports:
       - '3000:3000'
     depends_on:

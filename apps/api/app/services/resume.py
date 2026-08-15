@@ -6,8 +6,8 @@ import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
-from app.core.exceptions import BusinessRuleViolationError, ResourceNotFoundError
+from app.core.exceptions import ResourceNotFoundError
+from app.core.uploads import PDF_MIME, validate_upload
 from app.models.resume import Resume
 from app.repositories.resume import ResumeRepository
 from app.schemas.resume import ResumeCreate
@@ -57,14 +57,14 @@ class ResumeService:
         is_active: bool = False,
     ) -> Resume:
         """Store a PDF resume in object storage and record it."""
-        if content_type != "application/pdf" and not original_filename.lower().endswith(".pdf"):
-            raise BusinessRuleViolationError("Resume must be a PDF file.")
-        max_bytes = settings.max_upload_mb * 1024 * 1024
-        if len(data) > max_bytes:
-            raise BusinessRuleViolationError(f"File exceeds the {settings.max_upload_mb} MB limit.")
-
+        # If the browser didn't set a precise type, assume PDF and let the
+        # signature/extension check below reject anything that isn't one.
+        declared = content_type if content_type == PDF_MIME else PDF_MIME
+        validate_upload(
+            data=data, filename=original_filename, declared_mime=declared, allowed={PDF_MIME}
+        )
         key = self.storage.build_key(original_filename)
-        url = self.storage.upload(data, key, "application/pdf")
+        url = self.storage.upload(data, key, PDF_MIME)
 
         resume = Resume(name=name, file_url=url, version=version, is_active=False)
         self.session.add(resume)

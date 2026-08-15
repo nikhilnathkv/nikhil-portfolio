@@ -5,6 +5,8 @@ API router. Run with:  uvicorn app.main:app --reload
 """
 
 import logging
+import time
+import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -71,6 +73,28 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    @app.middleware("http")
+    async def request_context(request: Request, call_next):  # type: ignore[no-untyped-def]
+        """Attach a request id and log one structured line per request.
+
+        Deliberately logs only non-sensitive metadata — never bodies, cookies,
+        tokens, or credentials.
+        """
+        request_id = request.headers.get("x-request-id") or uuid.uuid4().hex
+        start = time.perf_counter()
+        response = await call_next(request)
+        latency_ms = round((time.perf_counter() - start) * 1000, 1)
+        response.headers["x-request-id"] = request_id
+        logger.info(
+            "request_id=%s method=%s path=%s status=%s latency_ms=%s",
+            request_id,
+            request.method,
+            request.url.path,
+            response.status_code,
+            latency_ms,
+        )
+        return response
 
     _register_exception_handlers(app)
 
