@@ -1,43 +1,52 @@
 import { MarkdownPreview } from '@/components/cms/MarkdownPreview';
+import { Container, Eyebrow, TagList } from '@/components/public';
+import { PublicImage } from '@/components/public/PublicImage';
 import type { BlogPost } from '@/lib/admin/blog-types';
+import { readingTimeMinutes } from '@/lib/format';
 
-/** Shared blog article renderer — used by the admin preview and the public page. */
+import { ContentMeta } from './reading';
+
+/** Public article renderer (writing) — shared by the admin preview and page. */
 export function ArticleView({ post }: { post: BlogPost }) {
   return (
-    <article className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-      <header className="flex flex-col gap-3">
-        {post.category ? (
-          <p className="font-mono text-xs uppercase tracking-widest text-foreground/50">
-            {post.category}
-          </p>
-        ) : null}
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{post.title}</h1>
-        {post.published_at ? (
-          <p className="text-sm text-foreground/50">
-            {new Date(post.published_at).toLocaleDateString(undefined, {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </p>
-        ) : null}
-        {post.excerpt ? <p className="text-lg text-foreground/70">{post.excerpt}</p> : null}
-      </header>
+    <article className="pb-16 pt-12 sm:pt-16">
+      <Container>
+        <header className="mx-auto flex max-w-[70ch] flex-col gap-4 pub-reveal">
+          {post.category ? <Eyebrow>{post.category}</Eyebrow> : null}
+          <h1 className="text-4xl font-semibold tracking-tight text-pub-fg text-balance sm:text-5xl">
+            {post.title}
+          </h1>
+          {post.excerpt ? (
+            <p className="text-pretty text-xl leading-relaxed text-pub-muted">{post.excerpt}</p>
+          ) : null}
+          <ContentMeta
+            publishedAt={post.published_at}
+            updatedAt={post.updated_at}
+            readingMinutes={readingTimeMinutes(post.content)}
+          />
+        </header>
 
-      <MarkdownPreview content={post.content} />
+        {post.cover_image?.url ? (
+          <div className="mx-auto mt-10 max-w-4xl">
+            <PublicImage
+              src={post.cover_image.url}
+              alt={post.cover_image.alt_text ?? post.title}
+              aspect="wide"
+              priority
+              sizes="(max-width: 1024px) 100vw, 896px"
+            />
+          </div>
+        ) : null}
 
-      {post.tags.length > 0 ? (
-        <footer className="flex flex-wrap gap-2 border-t border-foreground/10 pt-4">
-          {post.tags.map((t) => (
-            <span
-              key={t.id}
-              className="rounded-full border border-foreground/15 px-3 py-1 text-sm text-foreground/70"
-            >
-              {t.name}
-            </span>
-          ))}
-        </footer>
-      ) : null}
+        <div className="mx-auto mt-10 max-w-[70ch]">
+          <MarkdownPreview content={post.content} />
+          {post.tags.length > 0 ? (
+            <div className="mt-10 border-t border-pub-border pt-6">
+              <TagList tags={post.tags.map((t) => t.name)} />
+            </div>
+          ) : null}
+        </div>
+      </Container>
     </article>
   );
 }

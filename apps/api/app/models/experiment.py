@@ -20,7 +20,10 @@ class Experiment(UUIDPKMixin, TimestampMixin, SoftDeleteMixin, Base):
     slug: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
     hypothesis: Mapped[str | None] = mapped_column(Text, nullable=True)
     method: Mapped[str | None] = mapped_column(Text, nullable=True)
+    setup: Mapped[str | None] = mapped_column(Text, nullable=True)
+    approach: Mapped[str | None] = mapped_column(Text, nullable=True)
     results: Mapped[str | None] = mapped_column(Text, nullable=True)
+    learnings: Mapped[str | None] = mapped_column(Text, nullable=True)
     conclusion: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     project_id: Mapped[uuid.UUID | None] = mapped_column(

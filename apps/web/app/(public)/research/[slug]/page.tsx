@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
+import { ArticleJsonLd } from '@/components/content/ContentJsonLd';
 import { ResearchView } from '@/components/content/ResearchView';
-import { Container } from '@/components/public';
 import { getPublishedResearch } from '@/services/research';
 
 export async function generateMetadata({
@@ -13,7 +13,22 @@ export async function generateMetadata({
   const { slug } = await params;
   const research = await getPublishedResearch(slug);
   if (!research) return { title: 'Research not found' };
-  return { title: research.title, description: research.abstract ?? undefined };
+  const description = research.abstract ?? undefined;
+  const path = `/research/${research.slug}`;
+  return {
+    title: research.title,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      type: 'article',
+      title: research.title,
+      description,
+      url: path,
+      publishedTime: research.published_at ?? undefined,
+      modifiedTime: research.updated_at,
+      authors: ['Nikhil Nath'],
+    },
+  };
 }
 
 export default async function PublicResearchPage({
@@ -25,8 +40,16 @@ export default async function PublicResearchPage({
   const research = await getPublishedResearch(slug);
   if (!research) notFound();
   return (
-    <Container size="prose" className="py-16">
+    <>
+      <ArticleJsonLd
+        type="ScholarlyArticle"
+        title={research.title}
+        description={research.abstract}
+        path={`/research/${research.slug}`}
+        publishedAt={research.published_at}
+        updatedAt={research.updated_at}
+      />
       <ResearchView research={research} />
-    </Container>
+    </>
   );
 }

@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from app.models.enums import ContentStatus
 from app.schemas.base import TimestampedResponse
 from app.schemas.common import HttpUrlStr, Slug
-from app.schemas.project import ProjectRef
+from app.schemas.project import ContentRef, ProjectRef
 
 
 class ExperimentMetricCreate(BaseModel):
@@ -33,7 +33,10 @@ class ExperimentBase(BaseModel):
     title: str = Field(min_length=1, max_length=255)
     hypothesis: str | None = None
     method: str | None = None
+    setup: str | None = None
+    approach: str | None = None
     results: str | None = None
+    learnings: str | None = None
     conclusion: str | None = None
     project_id: uuid.UUID | None = None
     github_url: HttpUrlStr | None = Field(default=None, max_length=512)
@@ -50,7 +53,10 @@ class ExperimentUpdate(BaseModel):
     slug: Slug | None = None
     hypothesis: str | None = None
     method: str | None = None
+    setup: str | None = None
+    approach: str | None = None
     results: str | None = None
+    learnings: str | None = None
     conclusion: str | None = None
     project_id: uuid.UUID | None = None
     github_url: HttpUrlStr | None = Field(default=None, max_length=512)
@@ -64,13 +70,17 @@ class ExperimentResponse(TimestampedResponse):
     slug: str
     hypothesis: str | None = None
     method: str | None = None
+    setup: str | None = None
+    approach: str | None = None
     results: str | None = None
+    learnings: str | None = None
     conclusion: str | None = None
     project_id: uuid.UUID | None = None
     project: ProjectRef | None = None
     github_url: str | None = None
     status: ContentStatus
     metrics: list[ExperimentMetricResponse] = []
+    related_research: list[ContentRef] = []
 
 
 class ExperimentListResponse(TimestampedResponse):

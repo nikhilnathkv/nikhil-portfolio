@@ -1,60 +1,68 @@
-import Link from 'next/link';
-
-import { MarkdownPreview } from '@/components/cms/MarkdownPreview';
+import { Container, Eyebrow } from '@/components/public';
 import type { Research } from '@/lib/admin/research-types';
+import { readingTimeMinutes } from '@/lib/format';
 
-function ProseSection({ title, body }: { title: string; body: string | null }) {
-  if (!body || !body.trim()) return null;
-  return (
-    <section className="flex flex-col gap-2">
-      <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-      <MarkdownPreview content={body} />
-    </section>
-  );
-}
+import { ContentMeta, ContentSection, ExternalLinks, RelatedContent } from './reading';
 
-/** Shared research renderer — used by admin preview and the public page. */
+/** Public research renderer — structured, investigation-style presentation. */
 export function ResearchView({ research }: { research: Research }) {
-  const links = [
-    { label: 'Paper', href: research.paper_url },
-    { label: 'Publication', href: research.publication_url },
-    { label: 'Code', href: research.github_url },
-  ].filter((l): l is { label: string; href: string } => Boolean(l.href));
+  const minutes = readingTimeMinutes(
+    research.abstract,
+    research.research_question,
+    research.methodology,
+    research.dataset,
+    research.experimental_setup,
+    research.results,
+    research.analysis,
+    research.limitations,
+    research.conclusion,
+  );
 
   return (
-    <article className="mx-auto flex w-full max-w-3xl flex-col gap-8">
-      <header className="flex flex-col gap-3">
-        <p className="font-mono text-xs uppercase tracking-widest text-foreground/50">Research</p>
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{research.title}</h1>
-        {research.project ? (
-          <p className="text-sm text-foreground/60">
-            Part of{' '}
-            <Link href={`/projects/${research.project.slug}`} className="underline">
-              {research.project.title}
-            </Link>
-          </p>
-        ) : null}
-        {links.length > 0 ? (
-          <div className="mt-1 flex flex-wrap gap-3">
-            {links.map((l) => (
-              <a
-                key={l.label}
-                href={l.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-md border border-foreground/15 px-3 py-1.5 text-sm font-medium text-foreground/80 transition hover:border-foreground/40"
-              >
-                {l.label} ↗
-              </a>
-            ))}
-          </div>
-        ) : null}
-      </header>
+    <article className="pb-16 pt-12 sm:pt-16">
+      <Container>
+        <div className="mx-auto max-w-[70ch]">
+          <header className="flex flex-col gap-4 pub-reveal">
+            <Eyebrow>Research</Eyebrow>
+            <h1 className="text-4xl font-semibold tracking-tight text-pub-fg text-balance sm:text-5xl">
+              {research.title}
+            </h1>
+            {research.abstract ? (
+              <p className="text-pretty text-xl leading-relaxed text-pub-muted">
+                {research.abstract}
+              </p>
+            ) : null}
+            <ContentMeta
+              publishedAt={research.published_at}
+              updatedAt={research.updated_at}
+              readingMinutes={minutes}
+            />
+            <ExternalLinks
+              links={[
+                { label: 'Paper', href: research.paper_url },
+                { label: 'Publication', href: research.publication_url },
+                { label: 'GitHub', href: research.github_url },
+              ]}
+            />
+          </header>
 
-      <ProseSection title="Abstract" body={research.abstract} />
-      <ProseSection title="Methodology" body={research.methodology} />
-      <ProseSection title="Results" body={research.results} />
-      <ProseSection title="Conclusion" body={research.conclusion} />
+          <div className="mt-10 flex flex-col gap-8">
+            <ContentSection id="question" title="Research question" body={research.research_question} />
+            <ContentSection id="methodology" title="Methodology" body={research.methodology} />
+            <ContentSection id="dataset" title="Dataset" body={research.dataset} />
+            <ContentSection id="setup" title="Experimental setup" body={research.experimental_setup} />
+            <ContentSection id="results" title="Results" body={research.results} />
+            <ContentSection id="analysis" title="Analysis" body={research.analysis} />
+            <ContentSection id="limitations" title="Limitations" body={research.limitations} />
+            <ContentSection id="conclusion" title="Conclusion" body={research.conclusion} />
+            <ContentSection id="references" title="References" body={research.references} />
+            <RelatedContent
+              project={research.project}
+              experiments={research.related_experiments}
+            />
+          </div>
+        </div>
+      </Container>
     </article>
   );
 }

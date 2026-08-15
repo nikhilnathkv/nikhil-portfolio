@@ -1,3 +1,4 @@
+import type { Media } from '@/lib/admin/profile-types';
 import type { ContentStatus } from '@/lib/admin/project-types';
 
 export interface BlogTag {
@@ -35,6 +36,7 @@ export interface BlogPost {
   created_at: string;
   updated_at: string;
   tags: BlogTag[];
+  cover_image: Media | null;
 }
 
 export interface BlogWritePayload {

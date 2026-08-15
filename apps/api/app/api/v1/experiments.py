@@ -4,10 +4,12 @@ import uuid
 
 from fastapi import APIRouter, Depends, Query
 
-from app.api.deps import get_experiment_service
+from app.api.deps import get_experiment_service, get_research_service
 from app.schemas.common import SuccessResponse, success
 from app.schemas.experiment import ExperimentListResponse, ExperimentResponse
+from app.schemas.project import ContentRef
 from app.services.experiment import ExperimentService
+from app.services.research import ResearchService
 
 router = APIRouter(prefix="/experiments", tags=["Experiments"])
 
@@ -31,7 +33,14 @@ async def list_experiments(
     summary="Get a published experiment by slug",
 )
 async def get_experiment(
-    slug: str, service: ExperimentService = Depends(get_experiment_service)
+    slug: str,
+    service: ExperimentService = Depends(get_experiment_service),
+    research: ResearchService = Depends(get_research_service),
 ) -> SuccessResponse[ExperimentResponse]:
     item = await service.get_by_slug(slug)
-    return success(ExperimentResponse.model_validate(item))
+    response = ExperimentResponse.model_validate(item)
+    # Project-centric graph: sibling research that shares this project.
+    if item.project_id is not None:
+        siblings = await research.list(project_id=item.project_id)
+        response.related_research = [ContentRef.model_validate(r) for r in siblings]
+    return success(response)

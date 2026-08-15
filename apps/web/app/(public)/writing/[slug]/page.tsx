@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { ArticleView } from '@/components/content/ArticleView';
-import { Container } from '@/components/public';
+import { ArticleJsonLd } from '@/components/content/ContentJsonLd';
 import { getPublishedPost } from '@/services/blog';
 
 export async function generateMetadata({
@@ -13,9 +13,23 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await getPublishedPost(slug);
   if (!post) return { title: 'Article not found' };
+  const title = post.seo_title ?? post.title;
+  const description = post.seo_description ?? post.excerpt ?? undefined;
+  const path = `/writing/${post.slug}`;
   return {
-    title: post.seo_title ?? post.title,
-    description: post.seo_description ?? post.excerpt ?? undefined,
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      type: 'article',
+      title,
+      description,
+      url: path,
+      publishedTime: post.published_at ?? undefined,
+      modifiedTime: post.updated_at,
+      authors: ['Nikhil Nath'],
+      ...(post.cover_image?.url ? { images: [{ url: post.cover_image.url }] } : {}),
+    },
   };
 }
 
@@ -24,8 +38,16 @@ export default async function PublicBlogPage({ params }: { params: Promise<{ slu
   const post = await getPublishedPost(slug);
   if (!post) notFound();
   return (
-    <Container size="prose" className="py-16">
+    <>
+      <ArticleJsonLd
+        title={post.title}
+        description={post.excerpt}
+        path={`/writing/${post.slug}`}
+        publishedAt={post.published_at}
+        updatedAt={post.updated_at}
+        imageUrl={post.cover_image?.url}
+      />
       <ArticleView post={post} />
-    </Container>
+    </>
   );
 }

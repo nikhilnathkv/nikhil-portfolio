@@ -32,7 +32,7 @@ export default async function ResearchPreviewPage({
           Back to editor
         </Link>
       </div>
-      <main className="px-6 py-12">
+      <main className="public-theme min-h-dvh bg-pub-bg text-pub-fg">
         <ResearchView research={research} />
       </main>
     </div>

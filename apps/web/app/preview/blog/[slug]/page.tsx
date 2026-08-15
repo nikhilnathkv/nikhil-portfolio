@@ -28,7 +28,7 @@ export default async function BlogPreviewPage({ params }: { params: Promise<{ sl
           Back to editor
         </Link>
       </div>
-      <main className="px-6 py-12">
+      <main className="public-theme min-h-dvh bg-pub-bg text-pub-fg">
         <ArticleView post={post} />
       </main>
     </div>

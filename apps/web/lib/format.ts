@@ -1,4 +1,16 @@
-/** Shared, locale-stable date formatting for public pages. */
+/** Shared, locale-stable date + text formatting for public pages. */
+
+/** Estimated reading time in minutes (≈200 wpm), min 1, from Markdown/text. */
+export function readingTimeMinutes(...parts: (string | null | undefined)[]): number {
+  const words = parts
+    .filter(Boolean)
+    .join(' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200));
+}
+
 
 /** "Aug 2026" from an ISO date; null-safe. */
 export function formatMonthYear(iso: string | null | undefined): string | null {

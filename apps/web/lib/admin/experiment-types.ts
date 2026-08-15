@@ -1,4 +1,4 @@
-import type { ProjectMetric } from '@/lib/admin/project-types';
+import type { ContentRef, ProjectMetric } from '@/lib/admin/project-types';
 import type { ContentStatus, ProjectRef } from '@/lib/admin/project-refs';
 
 export interface ExperimentListItem {
@@ -19,7 +19,10 @@ export interface Experiment {
   slug: string;
   hypothesis: string | null;
   method: string | null;
+  setup: string | null;
+  approach: string | null;
   results: string | null;
+  learnings: string | null;
   conclusion: string | null;
   project_id: string | null;
   project: ProjectRef | null;
@@ -28,6 +31,7 @@ export interface Experiment {
   metrics: ProjectMetric[];
   created_at: string;
   updated_at: string;
+  related_research: ContentRef[];
 }
 
 export interface ExperimentWritePayload {
@@ -35,7 +39,10 @@ export interface ExperimentWritePayload {
   slug?: string;
   hypothesis?: string | null;
   method?: string | null;
+  setup?: string | null;
+  approach?: string | null;
   results?: string | null;
+  learnings?: string | null;
   conclusion?: string | null;
   project_id?: string | null;
   github_url?: string | null;

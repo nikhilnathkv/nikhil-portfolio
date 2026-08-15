@@ -21,7 +21,10 @@ interface FormState {
   slug: string;
   hypothesis: string;
   method: string;
+  setup: string;
+  approach: string;
   results: string;
+  learnings: string;
   conclusion: string;
   project_id: string | null;
   github_url: string;
@@ -33,7 +36,10 @@ const empty = (): FormState => ({
   slug: '',
   hypothesis: '',
   method: '',
+  setup: '',
+  approach: '',
   results: '',
+  learnings: '',
   conclusion: '',
   project_id: null,
   github_url: '',
@@ -45,7 +51,10 @@ const fromExperiment = (e: Experiment): FormState => ({
   slug: e.slug,
   hypothesis: e.hypothesis ?? '',
   method: e.method ?? '',
+  setup: e.setup ?? '',
+  approach: e.approach ?? '',
   results: e.results ?? '',
+  learnings: e.learnings ?? '',
   conclusion: e.conclusion ?? '',
   project_id: e.project_id,
   github_url: e.github_url ?? '',
@@ -59,7 +68,10 @@ const buildPayload = (f: FormState): ExperimentWritePayload => ({
   slug: f.slug.trim() || undefined,
   hypothesis: orNull(f.hypothesis),
   method: orNull(f.method),
+  setup: orNull(f.setup),
+  approach: orNull(f.approach),
   results: orNull(f.results),
+  learnings: orNull(f.learnings),
   conclusion: orNull(f.conclusion),
   project_id: f.project_id,
   github_url: orNull(f.github_url),
@@ -258,12 +270,36 @@ export function ExperimentEditor({ initial }: { initial?: Experiment }) {
             ariaLabel="Method"
           />
         </Section>
+        <Section title="Setup">
+          <MarkdownEditor
+            value={form.setup}
+            onChange={(v) => set('setup', v)}
+            rows={4}
+            ariaLabel="Setup"
+          />
+        </Section>
+        <Section title="Approach">
+          <MarkdownEditor
+            value={form.approach}
+            onChange={(v) => set('approach', v)}
+            rows={6}
+            ariaLabel="Approach"
+          />
+        </Section>
         <Section title="Results">
           <MarkdownEditor
             value={form.results}
             onChange={(v) => set('results', v)}
             rows={6}
             ariaLabel="Results"
+          />
+        </Section>
+        <Section title="What I learned">
+          <MarkdownEditor
+            value={form.learnings}
+            onChange={(v) => set('learnings', v)}
+            rows={4}
+            ariaLabel="What I learned"
           />
         </Section>
         <Section title="Conclusion">

@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { ExperimentView } from '@/components/content/ExperimentView';
-import { Container } from '@/components/public';
 import { getPublishedExperiment } from '@/services/experiments';
 
 export async function generateMetadata({
@@ -13,7 +12,14 @@ export async function generateMetadata({
   const { slug } = await params;
   const experiment = await getPublishedExperiment(slug);
   if (!experiment) return { title: 'Experiment not found' };
-  return { title: experiment.title, description: experiment.hypothesis ?? undefined };
+  const description = experiment.hypothesis ?? undefined;
+  const path = `/experiments/${experiment.slug}`;
+  return {
+    title: experiment.title,
+    description,
+    alternates: { canonical: path },
+    openGraph: { type: 'article', title: experiment.title, description, url: path },
+  };
 }
 
 export default async function PublicExperimentPage({
@@ -24,9 +30,5 @@ export default async function PublicExperimentPage({
   const { slug } = await params;
   const experiment = await getPublishedExperiment(slug);
   if (!experiment) notFound();
-  return (
-    <Container size="prose" className="py-16">
-      <ExperimentView experiment={experiment} />
-    </Container>
-  );
+  return <ExperimentView experiment={experiment} />;
 }

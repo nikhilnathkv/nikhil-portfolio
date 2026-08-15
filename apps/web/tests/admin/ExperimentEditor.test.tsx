@@ -16,7 +16,10 @@ const created: Experiment = {
   slug: 'bm25-vs-dense',
   hypothesis: null,
   method: null,
+  setup: null,
+  approach: null,
   results: null,
+  learnings: null,
   conclusion: null,
   project_id: null,
   project: null,
@@ -25,6 +28,7 @@ const created: Experiment = {
   metrics: [],
   created_at: '2026-08-14T00:00:00Z',
   updated_at: '2026-08-14T00:00:00Z',
+  related_research: [],
 };
 
 let fetchMock: ReturnType<typeof vi.fn>;

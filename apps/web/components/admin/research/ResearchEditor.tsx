@@ -19,9 +19,15 @@ interface FormState {
   title: string;
   slug: string;
   abstract: string;
+  research_question: string;
   methodology: string;
+  dataset: string;
+  experimental_setup: string;
   results: string;
+  analysis: string;
+  limitations: string;
   conclusion: string;
+  references: string;
   paper_url: string;
   publication_url: string;
   github_url: string;
@@ -32,9 +38,15 @@ const empty = (): FormState => ({
   title: '',
   slug: '',
   abstract: '',
+  research_question: '',
   methodology: '',
+  dataset: '',
+  experimental_setup: '',
   results: '',
+  analysis: '',
+  limitations: '',
   conclusion: '',
+  references: '',
   paper_url: '',
   publication_url: '',
   github_url: '',
@@ -45,9 +57,15 @@ const fromResearch = (r: Research): FormState => ({
   title: r.title,
   slug: r.slug,
   abstract: r.abstract ?? '',
+  research_question: r.research_question ?? '',
   methodology: r.methodology ?? '',
+  dataset: r.dataset ?? '',
+  experimental_setup: r.experimental_setup ?? '',
   results: r.results ?? '',
+  analysis: r.analysis ?? '',
+  limitations: r.limitations ?? '',
   conclusion: r.conclusion ?? '',
+  references: r.references ?? '',
   paper_url: r.paper_url ?? '',
   publication_url: r.publication_url ?? '',
   github_url: r.github_url ?? '',
@@ -60,9 +78,15 @@ const buildPayload = (f: FormState): ResearchWritePayload => ({
   title: f.title.trim(),
   slug: f.slug.trim() || undefined,
   abstract: orNull(f.abstract),
+  research_question: orNull(f.research_question),
   methodology: orNull(f.methodology),
+  dataset: orNull(f.dataset),
+  experimental_setup: orNull(f.experimental_setup),
   results: orNull(f.results),
+  analysis: orNull(f.analysis),
+  limitations: orNull(f.limitations),
   conclusion: orNull(f.conclusion),
+  references: orNull(f.references),
   paper_url: orNull(f.paper_url),
   publication_url: orNull(f.publication_url),
   github_url: orNull(f.github_url),
@@ -235,12 +259,36 @@ export function ResearchEditor({ initial }: { initial?: Research }) {
             ariaLabel="Abstract"
           />
         </Section>
+        <Section title="Research question">
+          <MarkdownEditor
+            value={form.research_question}
+            onChange={(v) => set('research_question', v)}
+            rows={4}
+            ariaLabel="Research question"
+          />
+        </Section>
         <Section title="Methodology">
           <MarkdownEditor
             value={form.methodology}
             onChange={(v) => set('methodology', v)}
             rows={8}
             ariaLabel="Methodology"
+          />
+        </Section>
+        <Section title="Dataset">
+          <MarkdownEditor
+            value={form.dataset}
+            onChange={(v) => set('dataset', v)}
+            rows={4}
+            ariaLabel="Dataset"
+          />
+        </Section>
+        <Section title="Experimental setup">
+          <MarkdownEditor
+            value={form.experimental_setup}
+            onChange={(v) => set('experimental_setup', v)}
+            rows={6}
+            ariaLabel="Experimental setup"
           />
         </Section>
         <Section title="Results">
@@ -251,12 +299,36 @@ export function ResearchEditor({ initial }: { initial?: Research }) {
             ariaLabel="Results"
           />
         </Section>
+        <Section title="Analysis">
+          <MarkdownEditor
+            value={form.analysis}
+            onChange={(v) => set('analysis', v)}
+            rows={6}
+            ariaLabel="Analysis"
+          />
+        </Section>
+        <Section title="Limitations">
+          <MarkdownEditor
+            value={form.limitations}
+            onChange={(v) => set('limitations', v)}
+            rows={4}
+            ariaLabel="Limitations"
+          />
+        </Section>
         <Section title="Conclusion">
           <MarkdownEditor
             value={form.conclusion}
             onChange={(v) => set('conclusion', v)}
             rows={6}
             ariaLabel="Conclusion"
+          />
+        </Section>
+        <Section title="References">
+          <MarkdownEditor
+            value={form.references}
+            onChange={(v) => set('references', v)}
+            rows={4}
+            ariaLabel="References"
           />
         </Section>
 

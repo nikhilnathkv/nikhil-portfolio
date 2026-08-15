@@ -180,3 +180,80 @@ async def test_admin_lists_are_paginated(admin_client: AsyncClient) -> None:
     resp = (await admin_client.get(f"{EXP}?page=1&page_size=2")).json()
     assert len(resp["data"]) == 2
     assert resp["meta"]["pagination"]["total"] == 3
+
+
+# --- M4.5: expanded detail fields + project-centric related content --------
+async def test_research_expanded_fields_roundtrip(admin_client: AsyncClient) -> None:
+    created = (
+        await admin_client.post(
+            RESEARCH,
+            json={
+                "title": "Retrieval Benchmark",
+                "abstract": "a",
+                "research_question": "Does hybrid beat dense?",
+                "dataset": "100 domain queries",
+                "experimental_setup": "BM25 vs dense vs hybrid",
+                "analysis": "Hybrid improved recall",
+                "limitations": "Small dataset",
+                "references": "- Paper A",
+                "status": "published",
+            },
+        )
+    ).json()["data"]
+    detail = (await admin_client.get(f"/api/v1/research/{created['slug']}")).json()["data"]
+    assert detail["research_question"] == "Does hybrid beat dense?"
+    assert detail["dataset"] == "100 domain queries"
+    assert detail["limitations"] == "Small dataset"
+    assert detail["references"] == "- Paper A"
+
+
+async def test_experiment_expanded_fields_roundtrip(admin_client: AsyncClient) -> None:
+    created = (
+        await admin_client.post(
+            EXP,
+            json={
+                "title": "Chunking Comparison",
+                "hypothesis": "Smaller chunks help precision",
+                "setup": "3 chunk sizes",
+                "approach": "Grid over chunk size",
+                "learnings": "512 tokens was the sweet spot",
+                "status": "published",
+            },
+        )
+    ).json()["data"]
+    detail = (await admin_client.get(f"/api/v1/experiments/{created['slug']}")).json()["data"]
+    assert detail["setup"] == "3 chunk sizes"
+    assert detail["approach"] == "Grid over chunk size"
+    assert detail["learnings"] == "512 tokens was the sweet spot"
+
+
+async def test_project_centric_related_content(admin_client: AsyncClient) -> None:
+    """Research and experiments sharing a project surface each other (published only)."""
+    proj = await _project(admin_client, "Graph Hub")
+    res = (
+        await admin_client.post(
+            RESEARCH,
+            json={
+                "title": "Shared Research",
+                "abstract": "a",
+                "project_id": proj["id"],
+                "status": "published",
+            },
+        )
+    ).json()["data"]
+    exp = (
+        await admin_client.post(
+            EXP,
+            json={"title": "Shared Experiment", "project_id": proj["id"], "status": "published"},
+        )
+    ).json()["data"]
+    # A draft experiment on the same project must not leak into related content.
+    await admin_client.post(
+        EXP, json={"title": "Draft Experiment", "project_id": proj["id"]}
+    )
+
+    research_detail = (await admin_client.get(f"/api/v1/research/{res['slug']}")).json()["data"]
+    assert [e["title"] for e in research_detail["related_experiments"]] == ["Shared Experiment"]
+
+    exp_detail = (await admin_client.get(f"/api/v1/experiments/{exp['slug']}")).json()["data"]
+    assert [r["title"] for r in exp_detail["related_research"]] == ["Shared Research"]
