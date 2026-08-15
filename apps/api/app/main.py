@@ -61,8 +61,11 @@ def create_app() -> FastAPI:
             "the `{data, meta}` / `{error}` envelope. Drafts are never exposed."
         ),
         openapi_tags=TAGS_METADATA,
-        docs_url="/docs",
-        openapi_url="/openapi.json",
+        # Interactive docs + the OpenAPI schema are disabled in production to
+        # avoid exposing the full API surface publicly; enabled everywhere else.
+        docs_url=None if settings.is_production else "/docs",
+        redoc_url=None if settings.is_production else "/redoc",
+        openapi_url=None if settings.is_production else "/openapi.json",
         lifespan=lifespan,
     )
 
@@ -140,6 +143,15 @@ def _register_exception_handlers(app: FastAPI) -> None:
                     "details": details,
                 }
             },
+        )
+
+    @app.exception_handler(Exception)
+    async def unhandled_exception_handler(_: Request, exc: Exception) -> JSONResponse:
+        # Log the full error server-side; never leak the message/stack to clients.
+        logging.getLogger("app").exception("Unhandled exception: %s", exc)
+        return JSONResponse(
+            status_code=500,
+            content={"error": {"code": "INTERNAL_ERROR", "message": "Internal server error"}},
         )
 
 
