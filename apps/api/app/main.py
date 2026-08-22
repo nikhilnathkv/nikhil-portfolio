@@ -134,6 +134,8 @@ def _register_exception_handlers(app: FastAPI) -> None:
         for error in exc.errors():
             location = ".".join(str(part) for part in error["loc"][1:]) or "body"
             details.setdefault(location, []).append(error["msg"])
+        # Field names + messages only (no submitted values) for server-side visibility.
+        logging.getLogger("app").warning("Request validation failed: %s", details)
         return JSONResponse(
             status_code=422,
             content={

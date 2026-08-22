@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 
+import { MarkdownPreview } from '@/components/cms/MarkdownPreview';
 import {
   ButtonLink,
   Container,
@@ -27,8 +28,6 @@ export const metadata: Metadata = {
 };
 
 // Temporary, curated copy — refined in a later content pass.
-const APPROACH =
-  'I like taking ambiguous problems, breaking them into measurable components, and turning them into reliable systems. I care about the whole path — from problem definition and evaluation through to deployment and the metrics that prove it works.';
 const EXPLORING = ['AI evaluation', 'Agentic systems', 'MLOps', 'Time-series modelling', 'Computer vision'];
 const TRAJECTORY = ['Data & ML', 'Applied AI', 'GenAI', 'Agentic systems', 'Production AI engineering'];
 
@@ -50,10 +49,11 @@ export default async function AboutPage() {
     listProjects(),
   ]);
 
+  // Concise positioning line for the hero; the full story renders below.
   const positioning =
-    profile?.long_bio?.trim() ||
     profile?.short_bio?.trim() ||
     'AI/ML engineer building intelligent systems at the intersection of machine learning, GenAI and production engineering.';
+  const narrative = profile?.long_bio?.trim() ?? '';
 
   const focusAreas = skills.filter((c) => c.skills.length > 0).map((c) => c.name);
   const years = yearsOfExperience(experience.map((e) => e.start_date));
@@ -85,26 +85,32 @@ export default async function AboutPage() {
         </Container>
       </Section>
 
+      {narrative ? (
+        <Section className="border-t border-pub-border">
+          <Container>
+            {/* Full story at a comfortable reading width; rendered as Markdown so
+                paragraphs, emphasis and lists in the CMS bio format cleanly. */}
+            <div className="max-w-2xl">
+              <MarkdownPreview content={narrative} />
+            </div>
+          </Container>
+        </Section>
+      ) : null}
+
       <Section className="border-t border-pub-border">
         <Container>
-          <div className="grid max-w-4xl gap-12 md:grid-cols-2">
-            <div className="flex flex-col gap-3">
-              <SectionHeading eyebrow="My approach" title="How I think" />
-              <p className="text-pretty leading-relaxed text-pub-muted">{APPROACH}</p>
-            </div>
-            <div className="flex flex-col gap-3">
-              <SectionHeading eyebrow="Trajectory" title="Where I'm heading" />
-              <ol className="flex flex-col gap-1.5 text-pub-muted">
-                {TRAJECTORY.map((step, i) => (
-                  <li key={step} className="flex items-center gap-2">
-                    <span className="font-mono text-xs text-pub-subtle">{i > 0 ? '↓' : '•'}</span>
-                    <span className={i === TRAJECTORY.length - 1 ? 'text-pub-fg' : undefined}>
-                      {step}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </div>
+          <div className="max-w-2xl">
+            <SectionHeading eyebrow="Trajectory" title="Where I'm heading" />
+            <ol className="mt-6 flex flex-col gap-1.5 text-pub-muted">
+              {TRAJECTORY.map((step, i) => (
+                <li key={step} className="flex items-center gap-2">
+                  <span className="font-mono text-xs text-pub-subtle">{i > 0 ? '↓' : '•'}</span>
+                  <span className={i === TRAJECTORY.length - 1 ? 'text-pub-fg' : undefined}>
+                    {step}
+                  </span>
+                </li>
+              ))}
+            </ol>
           </div>
         </Container>
       </Section>

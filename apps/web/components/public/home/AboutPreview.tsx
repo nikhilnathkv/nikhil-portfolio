@@ -6,7 +6,9 @@ export function AboutPreview({ bio }: { bio: string }) {
     <Section className="border-t border-pub-border">
       <Container>
         <SectionHeading eyebrow="About" title="A bit about me" />
-        <p className="mt-8 max-w-2xl text-pretty text-lg leading-relaxed text-pub-muted">{bio}</p>
+        <p className="mt-8 line-clamp-4 max-w-2xl text-pretty text-lg leading-relaxed text-pub-muted">
+          {bio}
+        </p>
         <div className="mt-8">
           <ButtonLink href="/about" variant="secondary">
             More about me
