@@ -7,7 +7,7 @@ import { getProfile } from '@/services/profile';
 export const metadata: Metadata = {
   title: 'Contact',
   description:
-    "Get in touch about AI/ML engineering, GenAI, research, or an interesting technical problem.",
+    'Get in touch about AI/ML engineering, GenAI, research, or an interesting technical problem.',
   alternates: { canonical: '/contact' },
   openGraph: {
     title: 'Contact · Nikhil Nath',
@@ -20,8 +20,12 @@ export default async function ContactPage() {
   const profile = await getProfile();
 
   const directLinks = [
-    profile?.email ? { label: 'Email', href: `mailto:${profile.email}`, text: profile.email } : null,
-    profile?.linkedin_url ? { label: 'LinkedIn', href: profile.linkedin_url, text: 'LinkedIn' } : null,
+    profile?.email
+      ? { label: 'Email', href: `mailto:${profile.email}`, text: profile.email }
+      : null,
+    profile?.linkedin_url
+      ? { label: 'LinkedIn', href: profile.linkedin_url, text: 'LinkedIn' }
+      : null,
     profile?.github_url ? { label: 'GitHub', href: profile.github_url, text: 'GitHub' } : null,
   ].filter((l): l is { label: string; href: string; text: string } => l !== null);
 

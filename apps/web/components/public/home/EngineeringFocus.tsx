@@ -22,7 +22,10 @@ function toAreas(categories: SkillCategory[]): FocusArea[] {
     .slice(0, 5)
     .map((c) => ({
       title: c.name,
-      detail: c.skills.slice(0, 3).map((s) => s.name).join(' · '),
+      detail: c.skills
+        .slice(0, 3)
+        .map((s) => s.name)
+        .join(' · '),
     }));
   return derived.length > 0 ? derived : DEFAULT_FOCUS;
 }

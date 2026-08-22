@@ -45,7 +45,9 @@ function project(overrides: Partial<Project> = {}): Project {
 describe('CaseStudyView', () => {
   it('renders hero, metrics, and the sections that have content', () => {
     render(<CaseStudyView project={project()} />);
-    expect(screen.getByRole('heading', { level: 1, name: 'Enterprise AI Knowledge Platform' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Enterprise AI Knowledge Platform' }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Problem' })).toBeInTheDocument();
     expect(screen.getByText('Thousands of documents were hard to search.')).toBeInTheDocument();
     expect(screen.getByText('94')).toBeInTheDocument();

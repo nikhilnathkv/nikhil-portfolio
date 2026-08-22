@@ -16,10 +16,10 @@ default for the api; Vercel for web).
 
 ## How do I roll back?
 
-- **Web (Vercel)**: Deployments → pick the last-good build → *Promote to
-  Production* (instant, atomic).
+- **Web (Vercel)**: Deployments → pick the last-good build → _Promote to
+  Production_ (instant, atomic).
 - **API**: redeploy the previous image/release (`fly releases` → `fly deploy
-  --image <prev>`, or the host's rollback button).
+--image <prev>`, or the host's rollback button).
 - **If a migration must be undone**: `alembic downgrade -1` (every migration in
   `apps/api/migrations/versions/` has a real `downgrade()`; verified up→down→up).
   Roll code back to match the schema.
@@ -85,6 +85,7 @@ restore it). Content returns because the CMS data lives in Postgres.
 1. Generate a new value (e.g. `python -c "import secrets; print(secrets.token_urlsafe(48))"`).
 2. Update it in the platform's secret store (Vercel env / Fly secrets / etc.).
 3. Redeploy the affected service.
+
 - Rotating `SESSION_SECRET` invalidates existing admin sessions (you re-login) —
   expected.
 - Rotating **storage keys**: create the new key, update `MINIO_ACCESS_KEY/SECRET`,

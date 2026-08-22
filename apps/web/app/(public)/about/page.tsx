@@ -28,8 +28,20 @@ export const metadata: Metadata = {
 };
 
 // Temporary, curated copy — refined in a later content pass.
-const EXPLORING = ['AI evaluation', 'Agentic systems', 'MLOps', 'Time-series modelling', 'Computer vision'];
-const TRAJECTORY = ['Data & ML', 'Applied AI', 'GenAI', 'Agentic systems', 'Production AI engineering'];
+const EXPLORING = [
+  'AI evaluation',
+  'Agentic systems',
+  'MLOps',
+  'Time-series modelling',
+  'Computer vision',
+];
+const TRAJECTORY = [
+  'Data & ML',
+  'Applied AI',
+  'GenAI',
+  'Agentic systems',
+  'Production AI engineering',
+];
 
 function yearsOfExperience(startDates: string[]): number | null {
   const earliest = startDates

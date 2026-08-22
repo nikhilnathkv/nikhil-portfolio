@@ -39,7 +39,10 @@ function PreviewList({
         <p className="text-sm text-pub-muted">More coming soon.</p>
       )}
       <div>
-        <Link href={ctaHref} className="font-mono text-xs text-pub-accent hover:text-pub-accent-hover">
+        <Link
+          href={ctaHref}
+          className="font-mono text-xs text-pub-accent hover:text-pub-accent-hover"
+        >
           {cta} →
         </Link>
       </div>

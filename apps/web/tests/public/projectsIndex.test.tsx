@@ -32,7 +32,13 @@ beforeEach(() => vi.mocked(listProjects).mockReset());
 describe('Projects index', () => {
   it('renders a featured section, category chips, and all cards', async () => {
     vi.mocked(listProjects).mockResolvedValue([
-      project({ id: '1', title: 'Featured RAG', slug: 'featured-rag', featured: true, category: 'GenAI' }),
+      project({
+        id: '1',
+        title: 'Featured RAG',
+        slug: 'featured-rag',
+        featured: true,
+        category: 'GenAI',
+      }),
       project({ id: '2', title: 'Vision System', slug: 'vision', category: 'Computer Vision' }),
     ]);
     render(await ProjectsIndexPage({ searchParams: Promise.resolve({}) }));

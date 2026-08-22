@@ -1,12 +1,6 @@
 import type { ProjectListItem } from '@/lib/admin/project-types';
 
-import {
-  ButtonLink,
-  Container,
-  ProjectCard,
-  Section,
-  SectionHeading,
-} from '@/components/public';
+import { ButtonLink, Container, ProjectCard, Section, SectionHeading } from '@/components/public';
 
 /**
  * The centerpiece: featured projects. Falls back to a graceful public message

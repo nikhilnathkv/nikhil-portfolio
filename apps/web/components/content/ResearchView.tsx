@@ -47,19 +47,24 @@ export function ResearchView({ research }: { research: Research }) {
           </header>
 
           <div className="mt-10 flex flex-col gap-8">
-            <ContentSection id="question" title="Research question" body={research.research_question} />
+            <ContentSection
+              id="question"
+              title="Research question"
+              body={research.research_question}
+            />
             <ContentSection id="methodology" title="Methodology" body={research.methodology} />
             <ContentSection id="dataset" title="Dataset" body={research.dataset} />
-            <ContentSection id="setup" title="Experimental setup" body={research.experimental_setup} />
+            <ContentSection
+              id="setup"
+              title="Experimental setup"
+              body={research.experimental_setup}
+            />
             <ContentSection id="results" title="Results" body={research.results} />
             <ContentSection id="analysis" title="Analysis" body={research.analysis} />
             <ContentSection id="limitations" title="Limitations" body={research.limitations} />
             <ContentSection id="conclusion" title="Conclusion" body={research.conclusion} />
             <ContentSection id="references" title="References" body={research.references} />
-            <RelatedContent
-              project={research.project}
-              experiments={research.related_experiments}
-            />
+            <RelatedContent project={research.project} experiments={research.related_experiments} />
           </div>
         </div>
       </Container>

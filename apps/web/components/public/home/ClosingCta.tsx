@@ -14,8 +14,8 @@ export function ClosingCta({ socials }: { socials: SocialLink[] }) {
             Let&apos;s build something useful.
           </h2>
           <p className="max-w-xl text-pretty text-lg leading-relaxed text-pub-muted">
-            Have an interesting AI problem, a research idea, or an opportunity? I&apos;d like to hear
-            about it.
+            Have an interesting AI problem, a research idea, or an opportunity? I&apos;d like to
+            hear about it.
           </p>
           <div className="flex flex-wrap gap-3">
             <ButtonLink href="/contact">Get in touch</ButtonLink>

@@ -44,7 +44,9 @@ describe('Writing index', () => {
       post({ id: '2', title: 'ML Post', slug: 'ml', category: 'Machine Learning' }),
     ]);
     render(await WritingIndexPage({ searchParams: Promise.resolve({ category: 'GenAI' }) }));
-    expect(screen.getByRole('heading', { level: 1, name: 'Articles & deep-dives' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Articles & deep-dives' }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'GenAI Post' })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'ML Post' })).not.toBeInTheDocument();
   });
@@ -60,14 +62,18 @@ describe('Research & Experiments indexes', () => {
   it('research empty state', async () => {
     vi.mocked(listResearch).mockResolvedValue([]);
     render(await ResearchIndexPage());
-    expect(screen.getByRole('heading', { level: 1, name: 'Investigations & findings' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Investigations & findings' }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/currently exploring this area/i)).toBeInTheDocument();
   });
 
   it('experiments empty state', async () => {
     vi.mocked(listExperiments).mockResolvedValue([]);
     render(await ExperimentsIndexPage());
-    expect(screen.getByRole('heading', { level: 1, name: 'A technical playground' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'A technical playground' }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/currently exploring this area/i)).toBeInTheDocument();
   });
 });

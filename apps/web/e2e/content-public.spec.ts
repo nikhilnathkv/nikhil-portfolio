@@ -45,7 +45,9 @@ async function seed(request: APIRequestContext) {
 test('writing index → article with code + math', async ({ page, request }) => {
   const { post } = await seed(request);
   await page.goto('/writing');
-  await expect(page.getByRole('heading', { level: 1, name: 'Articles & deep-dives' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Articles & deep-dives' }),
+  ).toBeVisible();
   await page.getByRole('link', { name: new RegExp(post.title) }).click();
   await expect(page).toHaveURL(new RegExp(`/writing/${post.slug}$`));
   await expect(page.getByRole('heading', { level: 1, name: new RegExp(post.title) })).toBeVisible();
@@ -58,7 +60,9 @@ test('writing index → article with code + math', async ({ page, request }) => 
 test('research index → structured detail', async ({ page, request }) => {
   const { research } = await seed(request);
   await page.goto('/research');
-  await expect(page.getByRole('heading', { level: 1, name: 'Investigations & findings' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Investigations & findings' }),
+  ).toBeVisible();
   await page.getByRole('link', { name: new RegExp(research.title) }).click();
   await expect(page).toHaveURL(new RegExp(`/research/${research.slug}$`));
   await expect(page.getByRole('heading', { name: 'Research question' })).toBeVisible();

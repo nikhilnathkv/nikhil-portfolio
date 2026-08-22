@@ -9,38 +9,36 @@ export const contentType = 'image/png';
 
 export default function OpengraphImage() {
   return new ImageResponse(
-    (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        background: '#0a0b0d',
+        color: '#e9ebee',
+        padding: '80px',
+        fontFamily: 'sans-serif',
+      }}
+    >
       <div
         style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          background: '#0a0b0d',
-          color: '#e9ebee',
-          padding: '80px',
-          fontFamily: 'sans-serif',
+          fontSize: 24,
+          letterSpacing: 6,
+          textTransform: 'uppercase',
+          color: '#4cc2ff',
         }}
       >
-        <div
-          style={{
-            fontSize: 24,
-            letterSpacing: 6,
-            textTransform: 'uppercase',
-            color: '#4cc2ff',
-          }}
-        >
-          AI / ML Engineer
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ fontSize: 110, fontWeight: 600, lineHeight: 1.05 }}>{SITE.name}</div>
-          <div style={{ marginTop: 24, fontSize: 34, color: '#9aa1ab' }}>
-            GenAI · Agentic AI · ML Systems
-          </div>
+        AI / ML Engineer
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div style={{ fontSize: 110, fontWeight: 600, lineHeight: 1.05 }}>{SITE.name}</div>
+        <div style={{ marginTop: 24, fontSize: 34, color: '#9aa1ab' }}>
+          GenAI · Agentic AI · ML Systems
         </div>
       </div>
-    ),
+    </div>,
     { ...size },
   );
 }

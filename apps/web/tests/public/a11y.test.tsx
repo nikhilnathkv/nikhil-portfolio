@@ -53,7 +53,12 @@ describe('accessibility (axe)', () => {
   it('Hero has no violations', async () => {
     const { container } = render(
       <div className="public-theme">
-        <Hero name="Nikhil Nath" role="AI / ML Engineer" positioning="I build systems." techSignal={['RAG']} />
+        <Hero
+          name="Nikhil Nath"
+          role="AI / ML Engineer"
+          positioning="I build systems."
+          techSignal={['RAG']}
+        />
       </div>,
     );
     expect(await axe(container, opts)).toHaveNoViolations();

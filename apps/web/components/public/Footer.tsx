@@ -48,7 +48,10 @@ export function Footer({
             </p>
           </div>
 
-          <nav aria-label="Footer" className="grid grid-cols-2 gap-x-10 gap-y-2 text-sm sm:grid-cols-2">
+          <nav
+            aria-label="Footer"
+            className="grid grid-cols-2 gap-x-10 gap-y-2 text-sm sm:grid-cols-2"
+          >
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
@@ -83,7 +86,12 @@ export function Footer({
                         {s.label}
                       </TrackedLink>
                     ) : (
-                      <a href={s.href} target="_blank" rel="noopener noreferrer" className={className}>
+                      <a
+                        href={s.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={className}
+                      >
                         {s.label}
                       </a>
                     )}

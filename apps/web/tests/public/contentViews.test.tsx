@@ -132,7 +132,9 @@ describe('ExperimentView', () => {
   });
 
   it('falls back to method for Setup when setup is empty', () => {
-    render(<ExperimentView experiment={experiment({ setup: null, method: 'Legacy method text.' })} />);
+    render(
+      <ExperimentView experiment={experiment({ setup: null, method: 'Legacy method text.' })} />,
+    );
     expect(screen.getByText('Legacy method text.')).toBeInTheDocument();
   });
 });

@@ -48,7 +48,13 @@ function DragHandle({
   label: string;
 }) {
   return (
-    <button type="button" className={handleClass} aria-label={`Reorder ${label}`} {...attributes} {...listeners}>
+    <button
+      type="button"
+      className={handleClass}
+      aria-label={`Reorder ${label}`}
+      {...attributes}
+      {...listeners}
+    >
       <span aria-hidden>⠿</span>
     </button>
   );
@@ -72,12 +78,18 @@ function SortableSkill({
     opacity: isDragging ? 0.5 : 1,
   };
   return (
-    <li ref={setNodeRef} style={style} className="flex items-center justify-between gap-2 bg-white px-4 py-2">
+    <li
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center justify-between gap-2 bg-white px-4 py-2"
+    >
       <span className="flex items-center gap-2 text-sm text-gray-700">
         <DragHandle attributes={attributes} listeners={listeners} label={skill.name} />
         {skill.name}
         {skill.featured ? (
-          <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">★</span>
+          <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">
+            ★
+          </span>
         ) : null}
       </span>
       <div className="flex items-center gap-1">
@@ -181,7 +193,11 @@ function SortableCategory({
           {cat.skills.length === 0 ? (
             <p className="px-4 py-3 text-sm text-gray-400">No skills in this category yet.</p>
           ) : (
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onSkillDragEnd}>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={onSkillDragEnd}
+            >
               <SortableContext
                 items={cat.skills.map((s) => s.id)}
                 strategy={verticalListSortingStrategy}
@@ -430,7 +446,11 @@ export function SkillsManager() {
           }
         />
       ) : (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onCategoryDragEnd}>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={onCategoryDragEnd}
+        >
           <SortableContext
             items={categories.map((c) => c.id)}
             strategy={verticalListSortingStrategy}

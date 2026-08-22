@@ -11,7 +11,9 @@ test('resume page renders the web resume', async ({ page }) => {
 
 test('contact form submits and confirms', async ({ page }) => {
   await page.goto('/contact');
-  await expect(page.getByRole('heading', { level: 1, name: /build something useful/i })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { level: 1, name: /build something useful/i }),
+  ).toBeVisible();
 
   await page.getByLabel('Name').fill(`E2E Visitor ${unique}`);
   await page.getByLabel('Email').fill(`e2e-${unique}@example.com`);

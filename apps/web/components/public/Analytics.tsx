@@ -19,7 +19,11 @@ export function Analytics() {
   }, [pathname]);
 
   useReportWebVitals((metric) => {
-    track('web_vitals', { metric: metric.name, value: Math.round(metric.value), rating: metric.rating });
+    track('web_vitals', {
+      metric: metric.name,
+      value: Math.round(metric.value),
+      rating: metric.rating,
+    });
   });
 
   return null;

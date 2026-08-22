@@ -53,7 +53,13 @@ export function SectionHeading({
       ? 'text-4xl sm:text-5xl font-semibold tracking-tight'
       : 'text-2xl sm:text-3xl font-semibold tracking-tight';
   return (
-    <div className={cn('flex flex-col gap-4', align === 'center' && 'items-center text-center', className)}>
+    <div
+      className={cn(
+        'flex flex-col gap-4',
+        align === 'center' && 'items-center text-center',
+        className,
+      )}
+    >
       {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
       <TitleTag className={cn(titleSize, 'text-pub-fg text-balance')}>{title}</TitleTag>
       {intro ? (
@@ -66,9 +72,7 @@ export function SectionHeading({
 /** Uppercase mono label used above headings and on metadata. */
 export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <span
-      className={cn('font-mono text-xs uppercase tracking-[0.2em] text-pub-accent', className)}
-    >
+    <span className={cn('font-mono text-xs uppercase tracking-[0.2em] text-pub-accent', className)}>
       {children}
     </span>
   );
@@ -198,12 +202,7 @@ export function MetricStat({
 /** Static surface card. */
 export function Card({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div
-      className={cn(
-        'rounded-2xl border border-pub-border bg-pub-surface p-6',
-        className,
-      )}
-    >
+    <div className={cn('rounded-2xl border border-pub-border bg-pub-surface p-6', className)}>
       {children}
     </div>
   );

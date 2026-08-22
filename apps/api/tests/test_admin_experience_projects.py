@@ -143,13 +143,9 @@ async def test_public_experience_list_includes_projects_and_description(
 async def test_project_detail_includes_experience_backlink(admin_client: AsyncClient) -> None:
     """A published project exposes the role(s) it was built in ('Built at …')."""
     proj = await _make_project(admin_client, "Backlink Project")
-    await admin_client.put(
-        f"{ADMIN_PROJECTS}/{proj['id']}", json={"description": "full"}
-    )
+    await admin_client.put(f"{ADMIN_PROJECTS}/{proj['id']}", json={"description": "full"})
     await admin_client.post(ADMIN_EXP, json=_exp(company="EY", project_ids=[proj["id"]]))
     await admin_client.post(f"{ADMIN_PROJECTS}/{proj['id']}/publish")
 
     detail = (await admin_client.get(f"/api/v1/projects/{proj['slug']}")).json()["data"]
-    assert [(x["company"], x["role"]) for x in detail["experience"]] == [
-        ("EY", "AI/ML Engineer")
-    ]
+    assert [(x["company"], x["role"]) for x in detail["experience"]] == [("EY", "AI/ML Engineer")]

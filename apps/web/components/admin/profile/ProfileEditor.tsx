@@ -268,7 +268,10 @@ export function ProfileEditor({ initial }: { initial: Profile | null }) {
         </Section>
 
         <Section id="resume-content" title="Resume content">
-          <Field label="Education" hint="Markdown list — shown on /resume. e.g. - BSc, University (Year)">
+          <Field
+            label="Education"
+            hint="Markdown list — shown on /resume. e.g. - BSc, University (Year)"
+          >
             <textarea
               className={inputClass}
               rows={4}

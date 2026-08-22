@@ -47,10 +47,7 @@ export function ExperimentView({ experiment }: { experiment: Experiment }) {
               title="What I learned"
               body={experiment.learnings ?? experiment.conclusion}
             />
-            <RelatedContent
-              project={experiment.project}
-              research={experiment.related_research}
-            />
+            <RelatedContent project={experiment.project} research={experiment.related_research} />
           </div>
         </div>
       </Container>

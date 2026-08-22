@@ -504,7 +504,10 @@ export function ProjectEditor({ initial }: { initial?: Project }) {
                 onChange={(e) => set('engineering_decisions', e.target.value)}
               />
             </Field>
-            <Field label="Evaluation" hint="Markdown. How did you measure it? Only what you actually measured.">
+            <Field
+              label="Evaluation"
+              hint="Markdown. How did you measure it? Only what you actually measured."
+            >
               <textarea
                 className={inputClass}
                 rows={4}

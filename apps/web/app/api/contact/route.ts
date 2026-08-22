@@ -6,9 +6,7 @@ import { NextResponse } from 'next/server';
  * public `/contact` endpoint (which owns validation, rate limiting + honeypot).
  */
 const API_BASE =
-  process.env.API_INTERNAL_URL ??
-  process.env.NEXT_PUBLIC_API_URL ??
-  'http://localhost:8000/api/v1';
+  process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1';
 
 export async function POST(request: Request) {
   const body = await request.text();

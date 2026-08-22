@@ -86,7 +86,15 @@ export function ExternalLinks({
   );
 }
 
-function RefList({ title, items, hrefBase }: { title: string; items: ContentRef[]; hrefBase: string }) {
+function RefList({
+  title,
+  items,
+  hrefBase,
+}: {
+  title: string;
+  items: ContentRef[];
+  hrefBase: string;
+}) {
   if (items.length === 0) return null;
   return (
     <div className="flex flex-col gap-2">
@@ -122,9 +130,7 @@ export function RelatedContent({
     <section id="related" className="scroll-mt-24 border-t border-pub-border pt-8">
       <h2 className="mb-6 text-2xl font-semibold tracking-tight text-pub-fg">Related work</h2>
       <div className="flex flex-col gap-8 sm:flex-row sm:gap-16">
-        {project ? (
-          <RefList title="Project" items={[project]} hrefBase="/projects" />
-        ) : null}
+        {project ? <RefList title="Project" items={[project]} hrefBase="/projects" /> : null}
         <RefList title="Research" items={research} hrefBase="/research" />
         <RefList title="Experiments" items={experiments} hrefBase="/experiments" />
       </div>

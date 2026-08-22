@@ -17,18 +17,18 @@ Set on the **api** service. It flips several safety defaults automatically:
 
 ## Configuration matrix
 
-| Concern | Local / dev | Production |
-| --- | --- | --- |
-| `API_ENV` | `development` | `production` |
-| `DATABASE_URL` | local Postgres container | managed Postgres, TLS |
-| `SESSION_SECRET` | `change-me…` | 64+ random chars, secret manager |
-| `SESSION_SECURE` | `false` | `true` (auto via `API_ENV`) |
-| `CORS_ORIGINS` | `http://localhost:3000` | `https://yourdomain.com` (exact) |
-| Object storage | MinIO container | R2 / S3, `MINIO_SECURE=true` |
-| `MINIO_PUBLIC_URL` | `http://localhost:9000` | CDN, e.g. `https://cdn.yourdomain.com` |
-| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | `https://yourdomain.com` |
-| `NEXT_PUBLIC_ANALYTICS_PROVIDER` | blank (off) | `plausible` / `umami` / blank |
-| Interactive API docs | on | off |
+| Concern                          | Local / dev              | Production                             |
+| -------------------------------- | ------------------------ | -------------------------------------- |
+| `API_ENV`                        | `development`            | `production`                           |
+| `DATABASE_URL`                   | local Postgres container | managed Postgres, TLS                  |
+| `SESSION_SECRET`                 | `change-me…`             | 64+ random chars, secret manager       |
+| `SESSION_SECURE`                 | `false`                  | `true` (auto via `API_ENV`)            |
+| `CORS_ORIGINS`                   | `http://localhost:3000`  | `https://yourdomain.com` (exact)       |
+| Object storage                   | MinIO container          | R2 / S3, `MINIO_SECURE=true`           |
+| `MINIO_PUBLIC_URL`               | `http://localhost:9000`  | CDN, e.g. `https://cdn.yourdomain.com` |
+| `NEXT_PUBLIC_SITE_URL`           | `http://localhost:3000`  | `https://yourdomain.com`               |
+| `NEXT_PUBLIC_ANALYTICS_PROVIDER` | blank (off)              | `plausible` / `umami` / blank          |
+| Interactive API docs             | on                       | off                                    |
 
 ## Security posture (verified in the release gate)
 

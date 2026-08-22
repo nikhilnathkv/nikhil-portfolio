@@ -12,7 +12,8 @@ import { listSkills } from '@/services/skills';
 
 export const metadata: Metadata = {
   title: 'Resume',
-  description: 'Resume of Nikhil Nath — AI/ML Engineer. Summary, experience, selected projects and skills.',
+  description:
+    'Resume of Nikhil Nath — AI/ML Engineer. Summary, experience, selected projects and skills.',
   alternates: { canonical: '/resume' },
   openGraph: {
     title: 'Resume · Nikhil Nath',
@@ -24,7 +25,9 @@ export const metadata: Metadata = {
 function ResumeSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="border-t border-pub-border pt-6">
-      <h2 className="mb-4 font-mono text-xs uppercase tracking-[0.18em] text-pub-subtle">{title}</h2>
+      <h2 className="mb-4 font-mono text-xs uppercase tracking-[0.18em] text-pub-subtle">
+        {title}
+      </h2>
       {children}
     </section>
   );
@@ -73,12 +76,22 @@ export default async function ResumePage() {
             </a>
           ) : null}
           {profile?.linkedin_url ? (
-            <a href={profile.linkedin_url} className="hover:text-pub-fg" target="_blank" rel="noopener noreferrer">
+            <a
+              href={profile.linkedin_url}
+              className="hover:text-pub-fg"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               LinkedIn
             </a>
           ) : null}
           {profile?.github_url ? (
-            <a href={profile.github_url} className="hover:text-pub-fg" target="_blank" rel="noopener noreferrer">
+            <a
+              href={profile.github_url}
+              className="hover:text-pub-fg"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               GitHub
             </a>
           ) : null}
@@ -118,7 +131,9 @@ export default async function ResumePage() {
                       {formatDateRange(e.start_date, e.end_date, e.is_current)}
                     </span>
                   </div>
-                  {e.summary ? <p className="text-sm leading-relaxed text-pub-muted">{e.summary}</p> : null}
+                  {e.summary ? (
+                    <p className="text-sm leading-relaxed text-pub-muted">{e.summary}</p>
+                  ) : null}
                 </div>
               ))}
             </div>
@@ -142,7 +157,9 @@ export default async function ResumePage() {
                   </div>
                   <p className="text-sm leading-relaxed text-pub-muted">{p.short_description}</p>
                   {p.skills.length > 0 ? (
-                    <p className="text-xs text-pub-subtle">{p.skills.map((s) => s.name).join(' · ')}</p>
+                    <p className="text-xs text-pub-subtle">
+                      {p.skills.map((s) => s.name).join(' · ')}
+                    </p>
                   ) : null}
                 </div>
               ))}

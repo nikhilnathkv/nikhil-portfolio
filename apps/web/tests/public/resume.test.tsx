@@ -76,7 +76,12 @@ beforeEach(() => {
     } as ProjectListItem,
   ]);
   vi.mocked(listSkills).mockResolvedValue([
-    { id: 'c1', name: 'GenAI', display_order: 0, skills: [{ id: 's1', category_id: 'c1', name: 'RAG', display_order: 0, featured: true }] } as SkillCategory,
+    {
+      id: 'c1',
+      name: 'GenAI',
+      display_order: 0,
+      skills: [{ id: 's1', category_id: 'c1', name: 'RAG', display_order: 0, featured: true }],
+    } as SkillCategory,
   ]);
   vi.mocked(getActiveResume).mockResolvedValue(null);
 });
@@ -85,7 +90,9 @@ describe('Resume page', () => {
   it('assembles the web resume from CMS content', async () => {
     render(await ResumePage());
     expect(screen.getByRole('heading', { level: 1, name: 'Nikhil Nath' })).toBeInTheDocument();
-    expect(screen.getByText('Production AI/ML across enterprise environments.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Production AI/ML across enterprise environments.'),
+    ).toBeInTheDocument();
     expect(screen.getByText('Experience')).toBeInTheDocument();
     expect(screen.getByText('Enterprise RAG')).toBeInTheDocument();
     expect(screen.getByText('Education')).toBeInTheDocument();

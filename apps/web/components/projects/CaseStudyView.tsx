@@ -1,7 +1,14 @@
 import Link from 'next/link';
 
 import { MarkdownPreview } from '@/components/cms/MarkdownPreview';
-import { buttonClasses, Container, Eyebrow, MetricStat, TagList, TrackedLink } from '@/components/public';
+import {
+  buttonClasses,
+  Container,
+  Eyebrow,
+  MetricStat,
+  TagList,
+  TrackedLink,
+} from '@/components/public';
 import { PublicImage } from '@/components/public/PublicImage';
 import type { ContentRef, Project } from '@/lib/admin/project-types';
 
@@ -89,8 +96,7 @@ export function CaseStudyView({ project }: { project: Project }) {
 
   const hasArchitecture = Boolean(project.architecture?.trim() || project.architecture_diagram_url);
   const hasMetrics = project.metrics.length > 0;
-  const hasRelated =
-    project.related_research.length > 0 || project.related_experiments.length > 0;
+  const hasRelated = project.related_research.length > 0 || project.related_experiments.length > 0;
 
   // On-this-page nav entries (only sections that exist).
   const toc: { id: string; label: string }[] = [];
@@ -98,7 +104,8 @@ export function CaseStudyView({ project }: { project: Project }) {
   // Insert narrative sections, placing Architecture after Solution.
   for (const s of narrative) {
     toc.push({ id: s.id, label: s.label });
-    if (s.id === 'solution' && hasArchitecture) toc.push({ id: 'architecture', label: 'Architecture' });
+    if (s.id === 'solution' && hasArchitecture)
+      toc.push({ id: 'architecture', label: 'Architecture' });
   }
   if (hasArchitecture && !narrative.some((s) => s.id === 'solution')) {
     toc.push({ id: 'architecture', label: 'Architecture' });

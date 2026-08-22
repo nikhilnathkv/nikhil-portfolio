@@ -40,7 +40,10 @@ describe('Hero', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Nikhil Nath' })).toBeInTheDocument();
     expect(screen.getByText('AI / ML Engineer')).toBeInTheDocument();
     expect(screen.getByText('I build production-grade AI systems.')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Explore my work' })).toHaveAttribute('href', '/projects');
+    expect(screen.getByRole('link', { name: 'Explore my work' })).toHaveAttribute(
+      'href',
+      '/projects',
+    );
     expect(screen.getByRole('link', { name: 'View resume' })).toHaveAttribute('href', '/resume');
     expect(screen.getByText('GenAI')).toBeInTheDocument();
   });

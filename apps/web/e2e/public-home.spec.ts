@@ -20,6 +20,9 @@ test('homepage renders the shell and navigates to sections', async ({ page }) =>
   await expect(page).toHaveURL(/\/projects$/);
 
   // Primary nav is present on the destination and links back home.
-  await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Writing' }).click();
+  await page
+    .getByRole('navigation', { name: 'Primary' })
+    .getByRole('link', { name: 'Writing' })
+    .click();
   await expect(page).toHaveURL(/\/writing$/);
 });

@@ -5,12 +5,7 @@ import { cn } from './cn';
  * prefers-reduced-motion by the global rule in globals.css.
  */
 export function Skeleton({ className }: { className?: string }) {
-  return (
-    <div
-      aria-hidden
-      className={cn('animate-pulse rounded-md bg-pub-surface-2', className)}
-    />
-  );
+  return <div aria-hidden className={cn('animate-pulse rounded-md bg-pub-surface-2', className)} />;
 }
 
 /** Card-shaped skeleton for list grids. */

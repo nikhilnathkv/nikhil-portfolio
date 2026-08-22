@@ -248,9 +248,7 @@ async def test_project_centric_related_content(admin_client: AsyncClient) -> Non
         )
     ).json()["data"]
     # A draft experiment on the same project must not leak into related content.
-    await admin_client.post(
-        EXP, json={"title": "Draft Experiment", "project_id": proj["id"]}
-    )
+    await admin_client.post(EXP, json={"title": "Draft Experiment", "project_id": proj["id"]})
 
     research_detail = (await admin_client.get(f"/api/v1/research/{res['slug']}")).json()["data"]
     assert [e["title"] for e in research_detail["related_experiments"]] == ["Shared Experiment"]

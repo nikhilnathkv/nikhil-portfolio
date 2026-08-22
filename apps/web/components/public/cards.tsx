@@ -44,7 +44,12 @@ export function ProjectCard({
   const shown = metrics.slice(0, 2);
   return (
     <CardLink href={`/projects/${slug}`} ariaLabel={title} className="flex flex-col gap-4 p-0">
-      <PublicImage src={imageUrl} alt={imageAlt ?? title} aspect="video" className="rounded-b-none" />
+      <PublicImage
+        src={imageUrl}
+        alt={imageAlt ?? title}
+        aspect="video"
+        className="rounded-b-none"
+      />
       <div className="flex flex-1 flex-col gap-3 p-6 pt-2">
         {category ? <Eyebrow>{category}</Eyebrow> : null}
         <h3 className="text-xl font-semibold tracking-tight text-pub-fg">{title}</h3>
@@ -56,7 +61,9 @@ export function ProjectCard({
               <div key={m.label} className="flex flex-col">
                 <span className="text-2xl font-semibold tracking-tight text-pub-fg">
                   {m.value}
-                  {m.unit ? <span className="ml-0.5 text-base text-pub-muted">{m.unit}</span> : null}
+                  {m.unit ? (
+                    <span className="ml-0.5 text-base text-pub-muted">{m.unit}</span>
+                  ) : null}
                 </span>
                 <span className="text-xs text-pub-subtle">{m.label}</span>
               </div>

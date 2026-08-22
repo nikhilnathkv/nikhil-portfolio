@@ -13,7 +13,10 @@ import { formatDateRange } from '@/lib/format';
 export function TimelineRole({ role }: { role: Experience }) {
   const range = formatDateRange(role.start_date, role.end_date, role.is_current);
   return (
-    <li id={`exp-${role.id}`} className="relative scroll-mt-24 border-l border-pub-border pb-14 pl-8 last:pb-0">
+    <li
+      id={`exp-${role.id}`}
+      className="relative scroll-mt-24 border-l border-pub-border pb-14 pl-8 last:pb-0"
+    >
       {/* node */}
       <span
         aria-hidden

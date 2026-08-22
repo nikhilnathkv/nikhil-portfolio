@@ -28,16 +28,16 @@ const skills: SkillCategory[] = [
 beforeEach(() => {
   vi.mocked(getProfile).mockResolvedValue(null);
   vi.mocked(listSkills).mockResolvedValue(skills);
-  vi.mocked(listExperience).mockResolvedValue([
-    { start_date: '2018-01-01' } as Experience,
-  ]);
+  vi.mocked(listExperience).mockResolvedValue([{ start_date: '2018-01-01' } as Experience]);
   vi.mocked(listProjects).mockResolvedValue([{ id: 'p1' } as ProjectListItem]);
 });
 
 describe('About page', () => {
   it('renders positioning, grouped skills, and substantiated highlights', async () => {
     render(await AboutPage());
-    expect(screen.getByRole('heading', { level: 1, name: /Building production AI systems/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: /Building production AI systems/i }),
+    ).toBeInTheDocument();
     // Grouped skills use the category name as an eyebrow, plus the skill tag.
     expect(screen.getAllByText('GenAI').length).toBeGreaterThan(0);
     expect(screen.getByText('RAG')).toBeInTheDocument();
