@@ -24,5 +24,6 @@ COPY . .
 
 EXPOSE 8000
 
-# Bind to the platform-assigned port; fall back to 8000 locally.
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Apply DB migrations (idempotent — no-ops when already at head) using the
+# platform's DATABASE_URL, then start the server bound to the assigned port.
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
