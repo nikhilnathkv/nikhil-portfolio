@@ -137,10 +137,16 @@ class StorageService:
             ext = "." + original_filename.rsplit(".", 1)[1].lower()
         return f"{uuid.uuid4().hex}{ext}"
 
+    def public_url_for(self, key: str) -> str:
+        """Public URL for a stored object. Bucket is in the path for MinIO / S3 /
+        Supabase, but not for bucket-scoped R2 public URLs."""
+        path = f"{self.bucket}/{key}" if settings.storage_public_bucket_in_path else key
+        return f"{self.public_url}/{path}"
+
     def upload(self, data: bytes, key: str, content_type: str) -> str:
         """Upload bytes under ``key`` and return the public URL."""
         self.backend.upload(self.bucket, key, data, content_type)
-        return f"{self.public_url}/{self.bucket}/{key}"
+        return self.public_url_for(key)
 
     def delete(self, key: str) -> None:
         self.backend.delete(self.bucket, key)

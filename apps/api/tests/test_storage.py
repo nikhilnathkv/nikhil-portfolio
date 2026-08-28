@@ -38,3 +38,15 @@ def test_facade_uses_injected_backend_and_config(monkeypatch) -> None:
     assert svc.public_url == "https://cdn.example.com"  # trailing slash trimmed
     assert svc.build_key("photo.PNG").endswith(".png")
     assert svc.backend is fake
+
+
+def test_public_url_bucket_in_path_toggle(monkeypatch) -> None:
+    monkeypatch.setattr(storage_mod.settings, "minio_bucket", "media")
+    monkeypatch.setattr(storage_mod.settings, "minio_public_url", "https://cdn.example.com")
+    svc = StorageService(backend=object())  # backend unused for URL building
+
+    monkeypatch.setattr(storage_mod.settings, "storage_public_bucket_in_path", True)
+    assert svc.public_url_for("abc.png") == "https://cdn.example.com/media/abc.png"
+
+    monkeypatch.setattr(storage_mod.settings, "storage_public_bucket_in_path", False)
+    assert svc.public_url_for("abc.png") == "https://cdn.example.com/abc.png"

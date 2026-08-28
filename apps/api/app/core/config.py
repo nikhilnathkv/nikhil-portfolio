@@ -52,6 +52,10 @@ class Settings(BaseSettings):
     #   "s3"    — path-style S3 via boto3 (Supabase Storage; also works for R2/S3)
     storage_provider: str = Field(default="minio")
     storage_region: str = Field(default="us-east-1")  # used by the boto3 (s3) backend
+    # Whether the public asset URL includes the bucket in its path. True for
+    # MinIO / AWS S3 (path-style) and Supabase (…/object/public/<bucket>/<key>);
+    # False for Cloudflare R2 public URLs, which are bucket-scoped (…/<key>).
+    storage_public_bucket_in_path: bool = Field(default=True)
     minio_endpoint: str = Field(default="localhost:9000")
     minio_access_key: str = Field(default="portfolio")
     minio_secret_key: str = Field(default="portfolio123")
