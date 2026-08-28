@@ -46,7 +46,12 @@ class Settings(BaseSettings):
     login_max_attempts: int = Field(default=5)
     login_lockout_seconds: int = Field(default=300)
 
-    # Object storage (MinIO / S3-compatible) for media + resume uploads
+    # Object storage (S3-compatible) for media + resume uploads.
+    # STORAGE_PROVIDER selects the backend:
+    #   "minio" — host-based S3 (local MinIO, Cloudflare R2, AWS S3) via minio-py
+    #   "s3"    — path-style S3 via boto3 (Supabase Storage; also works for R2/S3)
+    storage_provider: str = Field(default="minio")
+    storage_region: str = Field(default="us-east-1")  # used by the boto3 (s3) backend
     minio_endpoint: str = Field(default="localhost:9000")
     minio_access_key: str = Field(default="portfolio")
     minio_secret_key: str = Field(default="portfolio123")
