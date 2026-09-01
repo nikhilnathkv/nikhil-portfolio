@@ -35,6 +35,7 @@ declare global {
   interface Window {
     plausible?: (event: string, opts?: { props?: AnalyticsProps }) => void;
     umami?: { track: (event: string, props?: AnalyticsProps) => void };
+    posthog?: { capture: (event: string, props?: AnalyticsProps) => void };
   }
 }
 
@@ -58,6 +59,12 @@ export function track(event: AnalyticsEvent, props?: AnalyticsProps): void {
     case 'umami':
       window.umami?.track(event, clean);
       break;
+    case 'posthog': {
+      // PostHog's funnels/retention key off the reserved `$pageview` event.
+      const name = event === 'page_view' ? '$pageview' : event;
+      window.posthog?.capture(name, Object.keys(clean).length ? clean : undefined);
+      break;
+    }
     default:
       // Unknown provider configured — stay silent rather than throw.
       break;

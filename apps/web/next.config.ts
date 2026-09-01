@@ -12,6 +12,23 @@ const mediaOrigin = (() => {
 })();
 
 /**
+ * PostHog ingestion origin to whitelist in connect-src, but only when PostHog is
+ * the configured analytics provider. The bundled SDK posts events (and fetches
+ * feature flags) to this host; the wildcard also covers the region's assets
+ * subdomain. Empty for every other provider so the CSP stays minimal.
+ */
+const posthogConnect = (() => {
+  if (process.env.NEXT_PUBLIC_ANALYTICS_PROVIDER?.trim().toLowerCase() !== 'posthog') return '';
+  let origin = 'https://us.i.posthog.com';
+  try {
+    origin = new URL(process.env.NEXT_PUBLIC_POSTHOG_HOST ?? origin).origin;
+  } catch {
+    /* fall back to US cloud */
+  }
+  return ` ${origin} https://*.posthog.com`;
+})();
+
+/**
  * Relaxed-but-present CSP: allows self, inline styles (Tailwind), data:/blob:
  * and MinIO images, and same-origin XHR (the admin proxy). Next's runtime needs
  * inline/eval scripts; a strict nonce-based CSP is an M5 item.
@@ -22,7 +39,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
   "font-src 'self' data:",
-  "connect-src 'self'",
+  `connect-src 'self'${posthogConnect}`,
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
