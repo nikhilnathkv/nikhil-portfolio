@@ -12,12 +12,15 @@ const mediaOrigin = (() => {
 })();
 
 /**
- * PostHog ingestion origin to whitelist in connect-src, but only when PostHog is
- * the configured analytics provider. The bundled SDK posts events (and fetches
- * feature flags) to this host; the wildcard also covers the region's assets
- * subdomain. Empty for every other provider so the CSP stays minimal.
+ * PostHog origins to whitelist in connect-src and script-src, but only when
+ * PostHog is the configured analytics provider. The SDK posts events (and
+ * fetches feature flags) to the ingestion host, and loads its config, surveys
+ * and web-vitals scripts from the region's assets subdomain
+ * (e.g. us-assets.i.posthog.com), which the wildcard covers. Without them in
+ * script-src the browser blocks those scripts and analytics never starts.
+ * Empty for every other provider so the CSP stays minimal.
  */
-const posthogConnect = (() => {
+const posthogOrigins = (() => {
   if (process.env.NEXT_PUBLIC_ANALYTICS_PROVIDER?.trim().toLowerCase() !== 'posthog') return '';
   let origin = 'https://us.i.posthog.com';
   try {
@@ -37,9 +40,9 @@ const csp = [
   "default-src 'self'",
   `img-src 'self' data: blob: ${mediaOrigin}`,
   "style-src 'self' 'unsafe-inline'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  `script-src 'self' 'unsafe-inline' 'unsafe-eval'${posthogOrigins}`,
   "font-src 'self' data:",
-  `connect-src 'self'${posthogConnect}`,
+  `connect-src 'self'${posthogOrigins}`,
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

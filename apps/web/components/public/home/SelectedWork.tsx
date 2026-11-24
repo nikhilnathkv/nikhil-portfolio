@@ -1,6 +1,7 @@
 import type { ProjectListItem } from '@/lib/admin/project-types';
 
 import { ButtonLink, Container, ProjectCard, Section, SectionHeading } from '@/components/public';
+import { HIDDEN_NAV_HREFS } from '@/components/public/nav-links';
 
 /**
  * The centerpiece: featured projects. Falls back to a graceful public message
@@ -55,9 +56,11 @@ export function SelectedWork({
               or explore the source in the meantime.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <ButtonLink href="/projects" variant="secondary">
-                Browse projects
-              </ButtonLink>
+              {!HIDDEN_NAV_HREFS.has('/projects') ? (
+                <ButtonLink href="/projects" variant="secondary">
+                  Browse projects
+                </ButtonLink>
+              ) : null}
               {githubUrl ? (
                 <ButtonLink href={githubUrl} variant="ghost">
                   GitHub →

@@ -7,22 +7,19 @@ import { expect, test } from '@playwright/test';
 test('homepage renders the shell and navigates to sections', async ({ page }) => {
   await page.goto('/');
 
-  // Hero: exactly one h1, and the primary CTAs.
+  // Hero: exactly one h1, and the resume CTA. "Explore my work" is hidden
+  // while the Projects section is (see HIDDEN_NAV_HREFS in nav-links.ts).
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Explore my work' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'View resume' }).first()).toBeVisible();
 
   // Key sections are present.
   await expect(page.getByText('Selected Work')).toBeVisible();
   await expect(page.getByText("Let's build something useful.")).toBeVisible();
 
-  // Nav to the projects page via the hero CTA.
-  await page.getByRole('link', { name: 'Explore my work' }).click();
-  await expect(page).toHaveURL(/\/projects$/);
-
-  // Primary nav is present on the destination and links back home.
+  // Primary nav is present and navigates to a section.
   await page
     .getByRole('navigation', { name: 'Primary' })
-    .getByRole('link', { name: 'Writing' })
+    .getByRole('link', { name: 'Resume' })
     .click();
-  await expect(page).toHaveURL(/\/writing$/);
+  await expect(page).toHaveURL(/\/resume$/);
 });

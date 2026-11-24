@@ -1,4 +1,5 @@
 import { ButtonLink, Container, Eyebrow } from '@/components/public';
+import { HIDDEN_NAV_HREFS } from '@/components/public/nav-links';
 
 /**
  * Homepage hero — the single most important component. Confident, specific
@@ -16,6 +17,9 @@ export function Hero({
   positioning: string;
   techSignal: string[];
 }) {
+  // "Explore my work" only appears once the Projects section is back in the
+  // menu (see HIDDEN_NAV_HREFS), so the hero never links to an empty page.
+  const showWork = !HIDDEN_NAV_HREFS.has('/projects');
   return (
     <section className="pt-20 sm:pt-28">
       <Container>
@@ -28,8 +32,8 @@ export function Hero({
             {positioning}
           </p>
           <div className="mt-2 flex flex-wrap gap-3">
-            <ButtonLink href="/projects">Explore my work</ButtonLink>
-            <ButtonLink href="/resume" variant="secondary">
+            {showWork ? <ButtonLink href="/projects">Explore my work</ButtonLink> : null}
+            <ButtonLink href="/resume" variant={showWork ? 'secondary' : undefined}>
               View resume
             </ButtonLink>
           </div>

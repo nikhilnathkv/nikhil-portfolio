@@ -4,7 +4,8 @@ export interface NavLink {
   label: string;
 }
 
-export const NAV_LINKS: NavLink[] = [
+/** Every public section, in menu order. */
+export const ALL_NAV_LINKS: NavLink[] = [
   { href: '/projects', label: 'Projects' },
   { href: '/writing', label: 'Writing' },
   { href: '/research', label: 'Research' },
@@ -14,6 +15,25 @@ export const NAV_LINKS: NavLink[] = [
   { href: '/resume', label: 'Resume' },
   { href: '/contact', label: 'Contact' },
 ];
+
+/**
+ * Sections kept out of the header and footer until they have published
+ * content, so visitors don't land on "coming soon" pages. The pages still
+ * exist and work by direct URL. Remove an href here once its section has
+ * at least one published entry.
+ */
+export const HIDDEN_NAV_HREFS: ReadonlySet<string> = new Set([
+  '/projects',
+  '/writing',
+  '/research',
+  '/experiments',
+  '/experience',
+]);
+
+/** The links shown in the header and footer. */
+export const NAV_LINKS: NavLink[] = ALL_NAV_LINKS.filter(
+  (link) => !HIDDEN_NAV_HREFS.has(link.href),
+);
 
 /**
  * Active-link test that also lights the parent for detail routes

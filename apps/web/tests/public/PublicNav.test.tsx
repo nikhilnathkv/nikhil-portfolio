@@ -5,16 +5,23 @@ import { describe, expect, it, vi } from 'vitest';
 import { PublicNav } from '@/components/public/PublicNav';
 
 vi.mock('next/navigation', () => ({
-  usePathname: () => '/projects',
+  usePathname: () => '/about',
 }));
 
 describe('PublicNav', () => {
   it('marks the current section link as active', () => {
     render(<PublicNav siteName="Test Name" />);
-    const projects = screen.getByRole('link', { name: 'Projects' });
-    expect(projects).toHaveAttribute('aria-current', 'page');
+    const about = screen.getByRole('link', { name: 'About' });
+    expect(about).toHaveAttribute('aria-current', 'page');
     // A non-current link is not marked active.
-    expect(screen.getByRole('link', { name: 'Writing' })).not.toHaveAttribute('aria-current');
+    expect(screen.getByRole('link', { name: 'Resume' })).not.toHaveAttribute('aria-current');
+  });
+
+  it('hides sections that have no published content yet', () => {
+    render(<PublicNav siteName="Test Name" />);
+    for (const name of ['Projects', 'Writing', 'Research', 'Experiments', 'Experience']) {
+      expect(screen.queryByRole('link', { name })).not.toBeInTheDocument();
+    }
   });
 
   it('opens the mobile drawer, traps focus, and closes on Escape returning focus', async () => {

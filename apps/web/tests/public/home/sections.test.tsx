@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { EngineeringFocus } from '@/components/public/home/EngineeringFocus';
 import { Hero } from '@/components/public/home/Hero';
 import { SelectedWork } from '@/components/public/home/SelectedWork';
+import { HIDDEN_NAV_HREFS } from '@/components/public/nav-links';
 import type { ProjectListItem } from '@/lib/admin/project-types';
 import type { SkillCategory } from '@/lib/admin/skill-types';
 
@@ -28,7 +29,7 @@ function project(overrides: Partial<ProjectListItem> = {}): ProjectListItem {
 }
 
 describe('Hero', () => {
-  it('renders name, role, positioning, both CTAs, and the tech signal', () => {
+  it('renders name, role, positioning, the CTAs, and the tech signal', () => {
     render(
       <Hero
         name="Nikhil Nath"
@@ -40,10 +41,15 @@ describe('Hero', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Nikhil Nath' })).toBeInTheDocument();
     expect(screen.getByText('AI / ML Engineer')).toBeInTheDocument();
     expect(screen.getByText('I build production-grade AI systems.')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Explore my work' })).toHaveAttribute(
-      'href',
-      '/projects',
-    );
+    // "Explore my work" follows the Projects section's menu visibility.
+    if (HIDDEN_NAV_HREFS.has('/projects')) {
+      expect(screen.queryByRole('link', { name: 'Explore my work' })).not.toBeInTheDocument();
+    } else {
+      expect(screen.getByRole('link', { name: 'Explore my work' })).toHaveAttribute(
+        'href',
+        '/projects',
+      );
+    }
     expect(screen.getByRole('link', { name: 'View resume' })).toHaveAttribute('href', '/resume');
     expect(screen.getByText('GenAI')).toBeInTheDocument();
   });
